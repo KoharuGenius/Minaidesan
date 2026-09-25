@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マークスロット - 2人対戦カードゲーム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* カスタムカードアニメーション・スタイル */
+        .card {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-selected {
+            transform: translateY(-12px) scale(1.06);
+            box-shadow: 0 0 0 4px #f59e0b, 0 16px 28px -6px rgba(245, 158, 11, 0.5);
+        }
+
+        .card-disabled {
+            opacity: 0.5;
+            filter: grayscale(40%);
+            cursor: not-allowed;
+        }
+
+        .slot-target {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slot-target.highlight {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.18);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .slot-target.invalid {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.12);
+        }
+
+        /* 図柄別のグラデーションカラー */
+        .bg-symbol-circ { background: linear-gradient(135deg, #ef4444, #f43f5e); color: #fff; }
+        .bg-symbol-cross { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: #fff; }
+        .bg-symbol-tri { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+        .bg-symbol-sq { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+        .bg-symbol-wild { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: #fff; text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+
+        /* カード背面のシックなグラデーション */
+        .card-back {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid #334155;
+        }
+
+        /* ログ領域のカスタムスクロールバー */
+        .log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .log-container::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .log-container::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+
+        /* REACH! 演出用アニメーション */
+        @keyframes reachPop {
+            0% { transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.25) rotate(3deg); opacity: 1; }
+            75% { transform: translate(-50%, -50%) scale(0.95) rotate(-1deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .reach-banner-anim {
+            animation: reachPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-4 py-3 flex justify-between items-center z-10">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-rose-500 to-purple-500">
+                マークスロット
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">1対1 CPU戦</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="rule-btn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                📖 ルール
+            </button>
+            <button id="restart-btn" class="text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg transition shadow-md">
+                🔄 最初から
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-3 md:p-6 flex flex-col justify-between gap-4">
+
+        <!-- CPUエリア -->
+        <div class="bg-slate-900/60 rounded-2xl p-3 md:p-4 border border-slate-800 flex flex-col gap-2">
+            <div class="flex justify-between items-center text-sm font-bold text-slate-400">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" id="cpu-turn-indicator" style="display:none;"></span>
+                    <span>CPU (相手)</span>
+                </div>
+                <span id="cpu-status" class="text-xs font-normal text-slate-400">待機中</span>
+            </div>
+            <!-- CPU手札 (裏面表示) -->
+            <div id="cpu-hand" class="flex justify-center gap-3 h-24 md:h-28 items-center">
+                <!-- JSで動的生成 -->
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-center my-auto">
+            
+            <!-- 山札情報 -->
+            <div class="flex flex-col items-center justify-center gap-2 bg-slate-900/80 p-3 rounded-xl border border-slate-800 w-full md:w-36 shrink-0">
+                <div class="text-xs text-slate-400 font-bold">山札</div>
+                <div id="deck-card" class="card card-back w-14 h-20 md:w-16 md:h-24 rounded-lg flex flex-col items-center justify-center shadow-lg relative border-2 border-slate-700">
+                    <span class="text-xl">🂠</span>
+                    <span id="deck-count" class="text-sm font-black text-amber-400 mt-1">14</span>
+                </div>
+                <!-- 山札内枚数 (確認用) -->
+                <div class="text-[11px] w-full grid grid-cols-2 gap-x-1 gap-y-0.5 pt-1.5 border-t border-slate-800 text-slate-300">
+                    <div class="col-span-2 text-[10px] text-slate-400 font-bold text-center mb-0.5">山札残り(確認用)</div>
+                    <div>〇: <span id="count-CIRC" class="font-bold text-rose-400">0</span></div>
+                    <div>×: <span id="count-CROSS" class="font-bold text-sky-400">0</span></div>
+                    <div>△: <span id="count-TRI" class="font-bold text-emerald-400">0</span></div>
+                    <div>□: <span id="count-SQ" class="font-bold text-amber-400">0</span></div>
+                    <div class="col-span-2 text-center border-t border-slate-800/50 pt-0.5 mt-0.5">☆: <span id="count-WILD" class="font-bold text-purple-400">0</span></div>
+                </div>
+                <!-- 場に出た枚数 (公開用) -->
+                <div class="text-[11px] w-full grid grid-cols-2 gap-x-1 gap-y-0.5 pt-1.5 border-t border-slate-800 text-slate-300">
+                    <div class="col-span-2 text-[10px] text-emerald-400 font-bold text-center mb-0.5">場に出た枚数</div>
+                    <div>〇: <span id="played-CIRC" class="font-bold text-rose-400">0</span></div>
+                    <div>×: <span id="played-CROSS" class="font-bold text-sky-400">0</span></div>
+                    <div>△: <span id="played-TRI" class="font-bold text-emerald-400">0</span></div>
+                    <div>□: <span id="played-SQ" class="font-bold text-amber-400">0</span></div>
+                    <div class="col-span-2 text-center border-t border-slate-800/50 pt-0.5 mt-0.5">☆: <span id="played-WILD" class="font-bold text-purple-400">0</span></div>
+                </div>
+            </div>
+
+            <!-- 場の3スロット -->
+            <div class="relative w-full max-w-xl">
+                <!-- REACH! 演出用バナー (条件達成時にポップ表示) -->
+                <div id="reach-indicator" class="hidden absolute top-0 left-1/2 z-30 pointer-events-none -translate-y-1/2">
+                    <div class="reach-banner-anim bg-gradient-to-r from-amber-400 via-rose-500 to-purple-600 text-white font-black text-sm md:text-base px-5 py-1 rounded-full shadow-2xl border-2 border-amber-300 flex items-center gap-1.5 tracking-widest whitespace-nowrap">
+                        <span class="animate-bounce">⚡</span>
+                        <span class="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">REACH!</span>
+                        <span class="animate-bounce">⚡</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 md:gap-4 w-full">
+                <!-- スロット 0 -->
+                <div data-slot="0" class="slot-target bg-slate-900/90 rounded-xl p-2 md:p-3 border-2 border-dashed border-slate-700 flex flex-col items-center cursor-pointer hover:border-slate-500 relative min-h-[160px] md:min-h-[200px] justify-between">
+                    <div class="text-[10px] md:text-xs font-bold text-slate-400 mb-1">スロット 1</div>
+                    <div id="slot-0-stack" class="relative w-full flex justify-center items-center flex-1">
+                        <!-- カードスタック配置 -->
+                    </div>
+                    <div id="slot-0-badge" class="mt-1 text-[11px] text-slate-400 font-semibold h-4">重ね数: 1</div>
+                </div>
+
+                <!-- スロット 1 -->
+                <div data-slot="1" class="slot-target bg-slate-900/90 rounded-xl p-2 md:p-3 border-2 border-dashed border-slate-700 flex flex-col items-center cursor-pointer hover:border-slate-500 relative min-h-[160px] md:min-h-[200px] justify-between">
+                    <div class="text-[10px] md:text-xs font-bold text-slate-400 mb-1">スロット 2</div>
+                    <div id="slot-1-stack" class="relative w-full flex justify-center items-center flex-1">
+                        <!-- カードスタック配置 -->
+                    </div>
+                    <div id="slot-1-badge" class="mt-1 text-[11px] text-slate-400 font-semibold h-4">重ね数: 1</div>
+                </div>
+
+                <!-- スロット 2 -->
+                <div data-slot="2" class="slot-target bg-slate-900/90 rounded-xl p-2 md:p-3 border-2 border-dashed border-slate-700 flex flex-col items-center cursor-pointer hover:border-slate-500 relative min-h-[160px] md:min-h-[200px] justify-between">
+                    <div class="text-[10px] md:text-xs font-bold text-slate-400 mb-1">スロット 3</div>
+                    <div id="slot-2-stack" class="relative w-full flex justify-center items-center flex-1">
+                        <!-- カードスタック配置 -->
+                    </div>
+                    <div id="slot-2-badge" class="mt-1 text-[11px] text-slate-400 font-semibold h-4">重ね数: 1</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900/80 rounded-2xl p-3 md:p-4 border border-slate-800 flex flex-col gap-2 relative">
+            <div class="flex justify-between items-center text-sm font-bold text-slate-300">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="player-turn-indicator"></span>
+                    <span class="text-emerald-400">あなた (Player)</span>
+                </div>
+                <span id="player-instruction" class="text-xs font-normal text-amber-300">カードを選んで場に出してください</span>
+            </div>
+            
+            <!-- プレイヤー手札 -->
+            <div id="player-hand" class="flex justify-center gap-4 h-28 md:h-32 items-center">
+                <!-- JSで動的生成 -->
+            </div>
+        </div>
+
+        <!-- ゲーム進行ログ -->
+        <div class="bg-slate-950 rounded-xl p-3 border border-slate-800/80 text-xs">
+            <div class="text-slate-400 font-bold mb-1 flex justify-between items-center">
+                <span>💬 ゲーム実況ログ</span>
+                <span id="turn-counter" class="text-slate-400 font-normal">ターン 1</span>
+            </div>
+            <div id="game-log" class="log-container h-16 overflow-y-auto space-y-1 text-slate-300">
+                <div class="text-slate-400">ゲームが開始されました。</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 勝敗ダイアログ モーダル -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl transform transition-all scale-95 opacity-0" id="result-modal-content">
+            <div id="result-icon" class="text-6xl mb-3">🎉</div>
+            <h2 id="result-title" class="text-2xl font-black mb-2 text-amber-400">勝利！</h2>
+            <p id="result-message" class="text-slate-300 text-sm mb-6 leading-relaxed">3つの図柄が揃いました！あなたの勝ちです。</p>
+            <button id="modal-restart-btn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
+                次のゲームを開始する
+            </button>
+        </div>
+    </div>
+
+    <!-- ルール説明 モーダル -->
+    <div id="rule-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-left shadow-2xl max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-amber-400">📖 ルールガイド</h3>
+                <button id="close-rule-btn" class="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <div class="text-xs text-slate-300 space-y-3 overflow-y-auto pr-1 flex-1 leading-relaxed">
+                <div class="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
+                    <div class="font-bold text-amber-300 mb-1">【勝利条件】</div>
+                    場の3つのスロットの表側にあるカードの図柄を**「3枚すべて同じ」**に揃えたプレイヤーの勝ちです！
+                </div>
+                <div class="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
+                    <div class="font-bold text-amber-300 mb-1">【重ね方のルール】</div>
+                    手札からカードを出す際、**「現在そのスロットの一番上にあるカードと同じ図柄」の上に重ねて置くことはできません。**<br>
+                    （例：一番上が「〇」の場所に、手札の「〇」は置けません）
+                </div>
+                <div class="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
+                    <div class="font-bold text-amber-300 mb-1">【ワイルドカード「☆」】</div>
+                    「☆」は万能カードです。どの図柄としても扱われ、どのカードの上にも重ねて置くことができます！
+                </div>
+                <div class="p-2.5 bg-slate-800/80 rounded-lg border border-slate-700">
+                    <div class="font-bold text-amber-300 mb-1">【山札とゲーム終了】</div>
+                    カードを出したら山札から1枚引いて補充します。<br>
+                    山札が無くなったら補充なしで手札を使い切ります。両者の手札が尽きても決着がつかない場合は**引き分け（ドロー）**となります。
+                </div>
+            </div>
+            <button id="understood-btn" class="mt-4 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl transition border border-slate-700">
+                了解！
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- カード定義 ---
+        const SYMBOLS = {
+            CIRC:  { id: 'CIRC',  label: '〇', bgClass: 'bg-symbol-circ', color: '#ef4444' },
+            CROSS: { id: 'CROSS', label: '×', bgClass: 'bg-symbol-cross', color: '#3b82f6' },
+            TRI:   { id: 'TRI',   label: '△', bgClass: 'bg-symbol-tri', color: '#10b981' },
+            SQ:    { id: 'SQ',    label: '□', bgClass: 'bg-symbol-sq', color: '#f59e0b' },
+            WILD:  { id: 'WILD',  label: '☆', bgClass: 'bg-symbol-wild', color: '#8b5cf6' }
+        };
+
+        const NORMAL_SYMBOLS = ['CIRC', 'CROSS', 'TRI', 'SQ'];
+
+        // --- ゲーム状態管理変数 ---
+        let gameState = {
+            deck: [],
+            slots: [[], [], []], // 3つのスロット（配列の中に重ねられたカード配列）
+            playerHand: [],
+            cpuHand: [],
+            turn: 'PLAYER', // 'PLAYER' or 'CPU'
+            selectedCardIndex: null,
+            isGameOver: false,
+            turnCount: 1
+        };
+
+        // --- DOM要素 ---
+        const playerHandEl = document.getElementById('player-hand');
+        const cpuHandEl = document.getElementById('cpu-hand');
+        const deckCountEl = document.getElementById('deck-count');
+        const gameLogEl = document.getElementById('game-log');
+        const turnCounterEl = document.getElementById('turn-counter');
+        const playerTurnIndicator = document.getElementById('player-turn-indicator');
+        const cpuTurnIndicator = document.getElementById('cpu-turn-indicator');
+        const cpuStatusEl = document.getElementById('cpu-status');
+        const playerInstructionEl = document.getElementById('player-instruction');
+        const resultModal = document.getElementById('result-modal');
+        const resultModalContent = document.getElementById('result-modal-content');
+
+        // 山札の生成（〇×△□各5枚 + ☆1枚 = 計21枚）
+        function createDeck() {
+            const deck = [];
+            let idCounter = 0;
+
+            NORMAL_SYMBOLS.forEach(symKey => {
+                for (let i = 0; i < 5; i++) {
+                    deck.push({
+                        id: `card_${idCounter++}`,
+                        symbolKey: symKey,
+                        symbol: SYMBOLS[symKey]
+                    });
+                }
+            });
+
+            // ワイルドカード1枚追加
+            deck.push({
+                id: `card_${idCounter++}`,
+                symbolKey: 'WILD',
+                symbol: SYMBOLS.WILD
+            });
+
+            // フィッシャー–イェーツのシャッフル
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            return deck;
+        }
+
+        // ログメッセージ追加
+        function addLog(message, highlight = false) {
+            const entry = document.createElement('div');
+            entry.className = highlight ? 'text-amber-300 font-bold' : 'text-slate-300';
+            entry.textContent = message;
+            gameLogEl.appendChild(entry);
+            gameLogEl.scrollTop = gameLogEl.scrollHeight;
+        }
+
+        // ゲーム初期化
+        function initGame() {
+            gameState.deck = createDeck();
+            gameState.slots = [[], [], []];
+            gameState.playerHand = [];
+            gameState.cpuHand = [];
+            // 先手をランダムで決定 (PLAYER または CPU)
+            gameState.turn = Math.random() < 0.5 ? 'PLAYER' : 'CPU';
+            gameState.selectedCardIndex = null;
+            gameState.isGameOver = false;
+            gameState.turnCount = 1;
+
+            const firstPlayerName = gameState.turn === 'PLAYER' ? 'あなた' : 'CPU';
+            gameLogEl.innerHTML = '';
+            addLog(`🎮 新しいゲームが始まりました！（先手: ${firstPlayerName}）`);
+
+            // 場の初期化：3つの異なる通常図柄をセットアップ
+            let initialSymbols = [...NORMAL_SYMBOLS];
+            for (let i = initialSymbols.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [initialSymbols[i], initialSymbols[j]] = [initialSymbols[j], initialSymbols[i]];
+            }
+            const picked3Symbols = initialSymbols.slice(0, 3);
+
+            for (let i = 0; i < 3; i++) {
+                const symKey = picked3Symbols[i];
+                const cardIndex = gameState.deck.findIndex(c => c.symbolKey === symKey);
+                if (cardIndex !== -1) {
+                    const card = gameState.deck.splice(cardIndex, 1)[0];
+                    gameState.slots[i].push(card);
+                } else {
+                    gameState.slots[i].push(gameState.deck.pop());
+                }
+            }
+
+            // 配札（手札2枚ずつ）
+            for (let i = 0; i < 2; i++) {
+                if (gameState.deck.length > 0) gameState.playerHand.push(gameState.deck.pop());
+                if (gameState.deck.length > 0) gameState.cpuHand.push(gameState.deck.pop());
+            }
+
+            updateUI();
+
+            // CPUが先手の場合、AIの思考を開始
+            if (gameState.turn === 'CPU' && !gameState.isGameOver) {
+                setTimeout(runCpuAI, 800);
+            }
+        }
+
+        // 特定のスロットに手札のカードが重ねられるかどうかの判定
+        function canPlaceCard(card, slotStack) {
+            if (!card || !slotStack || slotStack.length === 0) return false;
+            const topCard = slotStack[slotStack.length - 1];
+            // 「すでに場に出ているカードと同じ図柄同士の上には置けない」
+            return card.symbolKey !== topCard.symbolKey;
+        }
+
+        // 場の3つのスロットが揃っているか（勝利判定）
+        function checkWinCondition(slots) {
+            const topCards = slots.map(stack => stack[stack.length - 1]);
+            if (topCards.some(c => !c)) return false;
+
+            const nonWilds = topCards.filter(c => c.symbolKey !== 'WILD');
+
+            if (nonWilds.length === 0) return true;
+            
+            const firstSymbol = nonWilds[0].symbolKey;
+            return nonWilds.every(c => c.symbolKey === firstSymbol);
+        }
+
+        // 場の3つのスロットがリーチ状態か判定
+        function checkReach(slots) {
+            if (checkWinCondition(slots)) return false; // 勝利時はリーチ扱いにしない
+
+            const topCards = slots.map(stack => stack[stack.length - 1]);
+            if (topCards.some(c => !c)) return false;
+
+            // WILDが含まれていれば確定でリーチ（残り2枚のどちらかと揃うため）
+            const wildCount = topCards.filter(c => c.symbolKey === 'WILD').length;
+            if (wildCount >= 1) return true;
+
+            // WILDがない場合、同じ図柄が2枚あればリーチ
+            const counts = {};
+            topCards.forEach(c => {
+                counts[c.symbolKey] = (counts[c.symbolKey] || 0) + 1;
+            });
+
+            return Object.values(counts).some(cnt => cnt >= 2);
+        }
+
+        // プレイヤーがカードを選択した時
+        function handleSelectPlayerCard(index) {
+            if (gameState.turn !== 'PLAYER' || gameState.isGameOver) return;
+
+            if (gameState.selectedCardIndex === index) {
+                gameState.selectedCardIndex = null;
+            } else {
+                gameState.selectedCardIndex = index;
+            }
+            updateUI();
+        }
+
+        // プレイヤーがスロットをタップしてカードを設置する時
+        function handleSelectSlot(slotIndex) {
+            if (gameState.turn !== 'PLAYER' || gameState.isGameOver) return;
+            if (gameState.selectedCardIndex === null) {
+                addLog('⚠️ 先に手札から出すカードを選んでください。');
+                return;
+            }
+
+            const card = gameState.playerHand[gameState.selectedCardIndex];
+            const slotStack = gameState.slots[slotIndex];
+
+            if (!canPlaceCard(card, slotStack)) {
+                addLog(`❌ スロット${slotIndex + 1}の「${slotStack[slotStack.length - 1].symbol.label}」の上には「${card.symbol.label}」を重ねられません！`);
+                return;
+            }
+
+            playMove('PLAYER', gameState.selectedCardIndex, slotIndex);
+        }
+
+        // 着手の実行共通処理
+        function playMove(player, handIndex, slotIndex) {
+            const hand = player === 'PLAYER' ? gameState.playerHand : gameState.cpuHand;
+            const card = hand.splice(handIndex, 1)[0];
+            gameState.slots[slotIndex].push(card);
+
+            const playerName = player === 'PLAYER' ? 'あなた' : 'CPU';
+            addLog(`${playerName}がスロット${slotIndex + 1}に「${card.symbol.label}」を置きました。`);
+
+            // 勝利判定
+            if (checkWinCondition(gameState.slots)) {
+                gameState.isGameOver = true;
+                updateUI();
+                showResultModal(player === 'PLAYER' ? 'WIN' : 'LOSE');
+                return;
+            }
+
+            // 補充（山札があれば）
+            if (gameState.deck.length > 0) {
+                hand.push(gameState.deck.pop());
+            }
+
+            // 引き分け判定
+            const playerHasCards = gameState.playerHand.length > 0;
+            const cpuHasCards = gameState.cpuHand.length > 0;
+
+            if (!playerHasCards && !cpuHasCards && gameState.deck.length === 0) {
+                gameState.isGameOver = true;
+                updateUI();
+                showResultModal('DRAW');
+                return;
+            }
+
+            gameState.selectedCardIndex = null;
+            gameState.turn = player === 'PLAYER' ? 'CPU' : 'PLAYER';
+            if (player === 'CPU') gameState.turnCount++;
+
+            updateUI();
+
+            if (gameState.turn === 'CPU' && !gameState.isGameOver) {
+                setTimeout(runCpuAI, 800);
+            }
+        }
+
+        // CPUの思考AI
+        function runCpuAI() {
+            if (gameState.isGameOver) return;
+
+            const validMoves = [];
+
+            gameState.cpuHand.forEach((card, handIdx) => {
+                gameState.slots.forEach((stack, slotIdx) => {
+                    if (canPlaceCard(card, stack)) {
+                        validMoves.push({ handIdx, slotIdx, card, stack });
+                    }
+                });
+            });
+
+            if (validMoves.length === 0) {
+                addLog('🤖 CPUは出せるカードがないためパスしました。');
+                gameState.turn = 'PLAYER';
+                updateUI();
+                return;
+            }
+
+            let bestMove = null;
+            let highestScore = -99999;
+
+            for (const move of validMoves) {
+                let score = 0;
+
+                const simSlots = gameState.slots.map((s, idx) => {
+                    if (idx === move.slotIdx) return [...s, move.card];
+                    return [...s];
+                });
+
+                if (checkWinCondition(simSlots)) {
+                    score += 10000;
+                }
+
+                const topCards = simSlots.map(st => st[st.length - 1]);
+                const nonWilds = topCards.filter(c => c.symbolKey !== 'WILD');
+                
+                let dangerCount = 0;
+                const counts = {};
+                nonWilds.forEach(c => { counts[c.symbolKey] = (counts[c.symbolKey] || 0) + 1; });
+                const hasPair = Object.values(counts).some(cnt => cnt === 2);
+                const hasWild = topCards.some(c => c.symbolKey === 'WILD');
+
+                if (hasPair || (nonWilds.length === 2 && hasWild)) {
+                    score -= 5000;
+                }
+
+                if (move.card.symbolKey === 'WILD' && !checkWinCondition(simSlots)) {
+                    score -= 500;
+                }
+
+                score += Math.random() * 50;
+
+                if (score > highestScore) {
+                    highestScore = score;
+                    bestMove = move;
+                }
+            }
+
+            if (bestMove) {
+                playMove('CPU', bestMove.handIdx, bestMove.slotIdx);
+            }
+        }
+
+        function updateUI() {
+            deckCountEl.textContent = gameState.deck.length;
+
+            const deckCounts = { CIRC: 0, CROSS: 0, TRI: 0, SQ: 0, WILD: 0 };
+            gameState.deck.forEach(card => {
+                if (deckCounts[card.symbolKey] !== undefined) {
+                    deckCounts[card.symbolKey]++;
+                }
+            });
+            Object.keys(deckCounts).forEach(key => {
+                const el = document.getElementById(`count-${key}`);
+                if (el) el.textContent = deckCounts[key];
+            });
+
+            // 場（重ねられたスロット）に出ている全カードの図柄枚数を集計
+            const playedCounts = { CIRC: 0, CROSS: 0, TRI: 0, SQ: 0, WILD: 0 };
+            gameState.slots.forEach(slotStack => {
+                slotStack.forEach(card => {
+                    if (playedCounts[card.symbolKey] !== undefined) {
+                        playedCounts[card.symbolKey]++;
+                    }
+                });
+            });
+            Object.keys(playedCounts).forEach(key => {
+                const el = document.getElementById(`played-${key}`);
+                if (el) el.textContent = playedCounts[key];
+            });
+
+            // REACH! 演出の更新
+            const reachIndicator = document.getElementById('reach-indicator');
+            if (reachIndicator) {
+                if (checkReach(gameState.slots)) {
+                    if (reachIndicator.classList.contains('hidden')) {
+                        reachIndicator.classList.remove('hidden');
+                        // アニメーションを再発動させるためにクラスをリセット
+                        const banner = reachIndicator.firstElementChild;
+                        if (banner) {
+                            banner.classList.remove('reach-banner-anim');
+                            void banner.offsetWidth; // リフロー発生
+                            banner.classList.add('reach-banner-anim');
+                        }
+                    }
+                } else {
+                    reachIndicator.classList.add('hidden');
+                }
+            }
+
+            turnCounterEl.textContent = `ターン ${gameState.turnCount}`;
+            if (gameState.turn === 'PLAYER') {
+                playerTurnIndicator.style.display = 'inline-block';
+                cpuTurnIndicator.style.display = 'none';
+                cpuStatusEl.textContent = '思考待ち...';
+                cpuStatusEl.className = 'text-xs font-normal text-slate-400';
+                playerInstructionEl.textContent = gameState.selectedCardIndex !== null 
+                    ? '重ねたいスロット（1〜3）を選んでください' 
+                    : '手札のカードを選んでください';
+            } else {
+                playerTurnIndicator.style.display = 'none';
+                cpuTurnIndicator.style.display = 'inline-block';
+                cpuStatusEl.textContent = '思考中...';
+                cpuStatusEl.className = 'text-xs font-bold text-amber-400 animate-pulse';
+                playerInstructionEl.textContent = '相手の思考中です...';
+            }
+
+            // プレイヤー手札の描写
+            playerHandEl.innerHTML = '';
+            gameState.playerHand.forEach((card, idx) => {
+                const isSelected = gameState.selectedCardIndex === idx;
+                const isMyTurn = gameState.turn === 'PLAYER' && !gameState.isGameOver;
+
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${card.symbol.bgClass} w-20 h-28 md:w-24 md:h-32 rounded-xl flex flex-col items-center justify-between p-2 shadow-lg cursor-pointer border-2 border-white/20 select-none ${isSelected ? 'card-selected' : (isMyTurn ? 'card-hover' : 'card-disabled')}`;
+                
+                cardEl.innerHTML = `
+                    <span class="text-xs font-black self-start opacity-80">${card.symbol.label}</span>
+                    <span class="text-3xl md:text-4xl font-black my-auto">${card.symbol.label}</span>
+                    <span class="text-xs font-black self-end opacity-80">${card.symbol.label}</span>
+                `;
+
+                if (isMyTurn) {
+                    cardEl.onclick = () => handleSelectPlayerCard(idx);
+                }
+                playerHandEl.appendChild(cardEl);
+            });
+
+            // CPU手札の描写
+            cpuHandEl.innerHTML = '';
+            gameState.cpuHand.forEach(() => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card card-back w-16 h-22 md:w-20 md:h-28 rounded-xl flex items-center justify-center shadow-md';
+                cardEl.innerHTML = `<span class="text-slate-600 text-lg">🂠</span>`;
+                cpuHandEl.appendChild(cardEl);
+            });
+
+            // 場の3スロットの描写
+            gameState.slots.forEach((stack, slotIdx) => {
+                const stackEl = document.getElementById(`slot-${slotIdx}-stack`);
+                const badgeEl = document.getElementById(`slot-${slotIdx}-badge`);
+                const slotContainer = document.querySelector(`[data-slot="${slotIdx}"]`);
+                
+                stackEl.innerHTML = '';
+                badgeEl.textContent = `重ね数: ${stack.length}`;
+
+                const topCard = stack[stack.length - 1];
+
+                if (topCard) {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = `card ${topCard.symbol.bgClass} w-20 h-28 md:w-24 md:h-32 rounded-xl flex flex-col items-center justify-between p-2 shadow-xl border-2 border-white/20 absolute`;
+                    cardEl.innerHTML = `
+                        <span class="text-xs font-black self-start opacity-80">${topCard.symbol.label}</span>
+                        <span class="text-3xl md:text-4xl font-black my-auto">${topCard.symbol.label}</span>
+                        <span class="text-xs font-black self-end opacity-80">${topCard.symbol.label}</span>
+                    `;
+                    stackEl.appendChild(cardEl);
+                }
+
+                slotContainer.classList.remove('highlight', 'invalid');
+                if (gameState.selectedCardIndex !== null && gameState.turn === 'PLAYER') {
+                    const selectedCard = gameState.playerHand[gameState.selectedCardIndex];
+                    if (canPlaceCard(selectedCard, stack)) {
+                        slotContainer.classList.add('highlight');
+                    } else {
+                        slotContainer.classList.add('invalid');
+                    }
+                }
+
+                slotContainer.onclick = () => handleSelectSlot(slotIdx);
+            });
+        }
+
+        function showResultModal(result) {
+            const modalTitle = document.getElementById('result-title');
+            const modalMsg = document.getElementById('result-message');
+            const modalIcon = document.getElementById('result-icon');
+
+            if (result === 'WIN') {
+                modalIcon.textContent = '👑';
+                modalTitle.textContent = 'あなたの勝利！';
+                modalTitle.className = 'text-2xl font-black mb-2 text-amber-400';
+                modalMsg.textContent = '見事、場の3つの図柄を揃えました！素晴らしい戦術です。';
+            } else if (result === 'LOSE') {
+                modalIcon.textContent = '💀';
+                modalTitle.textContent = 'CPUの勝利...';
+                modalTitle.className = 'text-2xl font-black mb-2 text-rose-500';
+                modalMsg.textContent = '相手に図柄を揃えられてしまいました。次回リベンジしましょう！';
+            } else {
+                modalIcon.textContent = '🤝';
+                modalTitle.textContent = '引き分け（ドロー）';
+                modalTitle.className = 'text-2xl font-black mb-2 text-slate-300';
+                modalMsg.textContent = '山札と手札が全て尽きましたが、決着がつきませんでした。';
+            }
+
+            resultModal.classList.remove('hidden');
+            setTimeout(() => {
+                resultModalContent.classList.remove('scale-95', 'opacity-0');
+                resultModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideResultModal() {
+            resultModalContent.classList.remove('scale-100', 'opacity-100');
+            resultModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                resultModal.classList.add('hidden');
+            }, 200);
+        }
+
+        // イベントリスナー
+        document.getElementById('restart-btn').addEventListener('click', initGame);
+        document.getElementById('modal-restart-btn').addEventListener('click', () => {
+            hideResultModal();
+            initGame();
+        });
+
+        const ruleModal = document.getElementById('rule-modal');
+        document.getElementById('rule-btn').addEventListener('click', () => ruleModal.classList.remove('hidden'));
+        document.getElementById('close-rule-btn').addEventListener('click', () => ruleModal.classList.add('hidden'));
+        document.getElementById('understood-btn').addEventListener('click', () => ruleModal.classList.add('hidden'));
+
+        // ゲーム起動
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
