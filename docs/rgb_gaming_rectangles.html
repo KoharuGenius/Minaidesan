@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming RGB Rectangles - Perfect Transparency</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            
+            /* 確認しやすい鮮やかな背景画像（サイバーパンク風） */
+            background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0d0f17;
+            
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* === 1. 矩形の親コンテナ === */
+        .gaming-rect {
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        /* === 2. 枠線だけを残して中央をくり抜くマスク層 === */
+        .gaming-rect-border-mask {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            padding: 3px; /* 枠線の太さ */
+            
+            /* CSS Maskで「枠の3px部分だけ」を残し、中央領域を完全に透明（空洞）にくり抜く */
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* マスクの中で回転する虹色グラデーション */
+        .gaming-rect-gradient {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 600px;
+            height: 600px;
+            margin-top: -300px;
+            margin-left: -300px;
+            
+            background: conic-gradient(
+                hsl(0, 100%, 60%),
+                hsl(60, 100%, 60%),
+                hsl(120, 100%, 60%),
+                hsl(180, 100%, 60%),
+                hsl(240, 100%, 60%),
+                hsl(300, 100%, 60%),
+                hsl(360, 100%, 60%)
+            );
+            
+            animation: rotateRGB 4s linear infinite;
+        }
+
+        /* === 3. 枠内のコンテンツ領域（完全透過＋すりガラス） === */
+        .gaming-rect-inner {
+            position: absolute;
+            inset: 3px; /* 枠線の内側にぴったり配置 */
+            border-radius: 7px;
+            z-index: 2;
+            
+            /* 下にグラデーションが存在しないため、bodyの背景画像が直接きれいに透過します */
+            background-color: rgba(15, 23, 42, 0.35); /* 35%の薄い紺色 */
+            
+            /* 背景画像をぼかす（すりガラス効果） */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* テキスト表示 */
+        .gaming-text {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                         0 0 15px rgba(0, 255, 255, 0.7);
+            user-select: none;
+        }
+
+        /* 枠線回転アニメーション */
+        @keyframes rotateRGB {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // サイズ設定
+            const rectsConfig = [
+                { width: '400px', height: '50px' },
+                { width: '400px', height: '70px' },
+                { width: '400px', height: '20px' }
+            ];
+
+            rectsConfig.forEach(config => {
+                // 親コンテナ
+                const rect = document.createElement('div');
+                rect.className = 'gaming-rect';
+                rect.style.width = config.width;
+                rect.style.height = config.height;
+
+                // くり抜きマスク層
+                const borderMask = document.createElement('div');
+                borderMask.className = 'gaming-rect-border-mask';
+
+                // マスク内で回転するグラデーション
+                const gradient = document.createElement('div');
+                gradient.className = 'gaming-rect-gradient';
+                borderMask.appendChild(gradient);
+
+                // 内側の半透明・すりガラス領域
+                const inner = document.createElement('div');
+                inner.className = 'gaming-rect-inner';
+
+                // テキスト
+                const text = document.createElement('span');
+                text.className = 'gaming-text';
+                text.textContent = '？？？';
+
+                // 組み立て
+                inner.appendChild(text);
+                rect.appendChild(borderMask);
+                rect.appendChild(inner);
+                
+                document.body.appendChild(rect);
+            });
+        });
+    </script>
+</body>
+</html>
