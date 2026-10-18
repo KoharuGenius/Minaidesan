@@ -28,33 +28,9 @@
 ;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
 [chara_config ptext="chara_name_area"]
 
-;このゲームで登場するキャラクターを宣言
-;akane
-;[chara_new  name="akane" storage="chara/akane/normal.png" jname="あかね"  ]
-;キャラクターの表情登録
-;[chara_face name="akane" face="angry" storage="chara/akane/angry.png"]
-;[chara_face name="akane" face="doki" storage="chara/akane/doki.png"]
-;[chara_face name="akane" face="happy" storage="chara/akane/happy.png"]
-;[chara_face name="akane" face="sad" storage="chara/akane/sad.png"]
 
 ;---
-[iscript]
-// 1. スタイル定義をheadに1回だけ追加
-if ($('#floating-arrow-style').length === 0) {
-  $('head').append(`
-    <style id="floating-arrow-style">
-      @keyframes float {
-        0% { transform: translateY(0); }
-        100% { transform: translateY(8px); }
-      }
-    </style>
-  `);
-}
-
-// 2. 要素自体を追加
-$("#insertcoin").remove();
-$(".1_fore").append('<div id="insertcoin" style="color:white;"><div style="display: inline-block; font-size: 24px; color:white; animation: float 1s ease-in-out infinite alternate;">▼</div> INSERTCOIN</div>');
-[endscript]
+[eval exp="disp_insertcoin();"]
 @layopt layer="1" visible="true"
 
 #
@@ -72,23 +48,18 @@ $(".1_fore").append('<div id="insertcoin" style="color:white;"><div style="displ
 ;
 ;なまえをいれてください【ああああ】[OK]
 ;
-[iscript]
-$("#insertcoin").remove();
-$("#name_aaa").remove();
-const strhtml=`
-<div id="name_aaa" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-  <p style="color:white;">なまえをいれてください【ああああ】</p>
-</div>
-`;
-$(".1_fore").append(strhtml);
-[endscript]
+[eval exp="disp_entername();"]
 ;@layopt layer="1" visible="true"
 
 名前？[r]
 「OK」ボタンしか無いぞ？
 
+[glink color="btn_07_white" text="OK" width=100 target="*enter_game" y=300]
+
 [s]
 
+*enter_game
+@@layopt layer="1" visible="false"
 @chara_show name="minami"
 #みなみ
 [dekamoji]ようこそ！ああああ君！[resetfont][p]

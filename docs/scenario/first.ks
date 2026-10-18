@@ -1,6 +1,7 @@
 ;一番最初に呼び出されるファイル
 
 [title name="ティラノスクリプト解説"]
+
 [stop_keyconfig]
 
 
@@ -9,23 +10,26 @@
 @call storage="tyrano.ks"
 
 ;ゲームで必ず必要な初期化処理はこのファイルに記述するのがオススメ
-;キャラクターの名前が表示される文字領域
-[ptext name="chara_name_area" layer="message0" color="white" size=28 bold=true x=180 y=510]
+[loadjs storage="mymodule.js"]
+[loadcss file="./data/others/custom.css"]
 
-;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
-[chara_config ptext="chara_name_area"]
+;for charactor
+[chara_new name="minami" storage="./chara/box_normal.png" jname="みなみ"]
 
-;
-;このゲームで登場するキャラクターを宣言
-;nozomi
-;
-;[chara_new  name="nozomi" storage="chara/akane/normal.png" jname="のぞみ"  ]
-;キャラクターの表情登録
-;[chara_face name="nozomi" face="angry" storage="chara/akane/angry.png"]
-;[chara_face name="nozomi" face="doki" storage="chara/akane/doki.png"]
-;[chara_face name="nozomi" face="happy" storage="chara/akane/happy.png"]
-;[chara_face name="nozomi" face="sad" storage="chara/akane/sad.png"]
+;[chara_face name="nozomi" face="eee" storage="./chara/nzmeee.png"]
 
+; popopo設定　少しポップで明るい印象（三角波）
+[popopo type="none"]
+[popopo type="triangle" frequency="E" octave="1" noplaychars="…、。！？" chara="のぞみ"]
+
+;****Macro Define
+[macro name="choice"]
+    [glink color="btn_06_yellow" size="24" width="600" text=%text target=%target]
+[endmacro]
+
+[macro name="dekamoji"]
+    [font size="40" bold="true"]
+[endmacro]
 
 ;メッセージボックスは非表示
 @layopt layer="message" visible=false
