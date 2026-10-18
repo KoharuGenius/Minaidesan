@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monochrome Glassmorphism Rotating Border Button</title>
+    <!-- Tailwind CSS for Layout & Demo Controls -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles and custom keyframes */
+        @keyframes spin-border {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* Border element logic */
+        .comet-border-container {
+            position: relative;
+            padding: 2px; /* Border thickness */
+            border-radius: 9999px; /* Fully rounded pill shape */
+            overflow: hidden;
+            display: inline-block;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        }
+
+        /* Glowing backdrop / Rotating gradient layer */
+        .comet-border-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: conic-gradient(
+                from 0deg,
+                rgba(0, 0, 0, 0.95) 0deg,
+                rgba(0, 0, 0, 0.6) 60deg,
+                rgba(0, 0, 0, 0.1) 120deg,
+                transparent 180deg,
+                transparent 360deg
+            );
+            transform: translate(-50%, -50%) rotate(0deg);
+            /* Speed controllable via dynamic inline style or CSS classes */
+            animation: spin-border 3s linear infinite;
+            will-change: transform;
+        }
+
+        /* Hover animation states */
+        .mode-hover-only .comet-border-glow {
+            animation-play-state: paused;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .mode-hover-only:hover .comet-border-glow {
+            animation-play-state: running;
+            opacity: 1;
+        }
+
+        .mode-pulse-hover .comet-border-glow {
+            animation-play-state: paused;
+            opacity: 0.2;
+            transition: opacity 0.4s ease;
+        }
+        .mode-pulse-hover:hover .comet-border-glow {
+            animation-play-state: running;
+            opacity: 1;
+        }
+
+        /* Inner Button Styling (Frosted Glass) */
+        .glass-button-inner {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 9999px;
+            color: #000000;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.875rem 2.25rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .comet-border-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.15);
+        }
+
+        .comet-border-container:active {
+            transform: translateY(0);
+        }
+
+        /* Speed modifiers */
+        .speed-fast .comet-border-glow {
+            animation-duration: 1.2s;
+        }
+        .speed-normal .comet-border-glow {
+            animation-duration: 2.5s;
+        }
+        .speed-slow .comet-border-glow {
+            animation-duration: 5s;
+        }
+
+        /* Dynamic background styles for testing backdrop blur */
+        .bg-pattern-dark {
+            background-color: #121212;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .bg-pattern-light {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .bg-pattern-photo {
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop') center/cover no-repeat;
+        }
+        .bg-pattern-art {
+            background: linear-gradient(135deg, #000 0%, #333 50%, #eee 50%, #fff 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-black/40 backdrop-blur-md px-6 py-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-lg font-bold text-white tracking-wide">Monochrome UI Component</h1>
+            <p class="text-xs text-gray-400">Rotating Conic-Gradient Border + Glassmorphism Button</p>
+        </div>
+        <span class="text-xs px-2.5 py-1 rounded-full bg-white/10 text-gray-300 font-mono">B&W Minimalist</span>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        
+        <!-- Interactive Canvas Stage -->
+        <div id="canvasStage" class="flex-1 flex items-center justify-center p-8 bg-pattern-dark transition-all duration-500 relative min-h-[380px]">
+            
+            <!-- Floating info overlay -->
+            <div class="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-xs text-gray-300 font-mono">
+                Backdrop: <span id="currentBgLabel" class="text-white font-semibold">Dark Grid</span>
+            </div>
+
+            <!-- THE TARGET BUTTON COMPONENT -->
+            <div id="buttonWrapper" class="comet-border-container speed-normal mode-always">
+                <!-- Rotating gradient element -->
+                <div class="comet-border-glow"></div>
+                
+                <!-- White/Translucent Glass Inner Button -->
+                <button class="glass-button-inner text-sm md:text-base">
+                    <span>GET STARTED</span>
+                    <!-- Arrow Icon (Level and stationary) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Right Control Panel -->
+        <aside class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-800 bg-gray-950 p-6 flex flex-col gap-6 overflow-y-auto">
+            
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Interactive Controls</h2>
+                
+                <!-- Speed Toggle -->
+                <div class="mb-5">
+                    <label class="block text-xs text-gray-400 mb-2 font-medium">Rotation Speed</label>
+                    <div class="grid grid-cols-3 gap-2 p-1 bg-gray-900 rounded-lg border border-gray-800">
+                        <button onclick="setSpeed('fast')" id="btn-speed-fast" class="py-1.5 text-xs rounded-md text-gray-400 hover:text-white font-medium transition">Fast</button>
+                        <button onclick="setSpeed('normal')" id="btn-speed-normal" class="py-1.5 text-xs rounded-md bg-white/10 text-white font-medium transition">Normal</button>
+                        <button onclick="setSpeed('slow')" id="btn-speed-slow" class="py-1.5 text-xs rounded-md text-gray-400 hover:text-white font-medium transition">Slow</button>
+                    </div>
+                </div>
+
+                <!-- Interaction Trigger Toggle -->
+                <div class="mb-5">
+                    <label class="block text-xs text-gray-400 mb-2 font-medium">Interaction Mode</label>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="setMode('always')" id="btn-mode-always" class="w-full text-left px-3 py-2 text-xs rounded-lg border border-white/20 bg-white/10 text-white flex justify-between items-center">
+                            <span>Always Rotating</span>
+                            <span class="text-[10px] text-gray-400">Loading / Focus</span>
+                        </button>
+                        <button onclick="setMode('hover-only')" id="btn-mode-hover-only" class="w-full text-left px-3 py-2 text-xs rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white hover:border-gray-700 flex justify-between items-center">
+                            <span>Rotate on Hover Only</span>
+                            <span class="text-[10px] text-gray-400">Micro-interaction</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Background Preset Toggle (To test frosted glass effect) -->
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2 font-medium">Test Canvas Background</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setBg('dark')" class="px-3 py-2 text-xs rounded-lg bg-gray-900 border border-gray-800 text-gray-300 hover:border-gray-600 text-left">Dark Grid</button>
+                        <button onclick="setBg('light')" class="px-3 py-2 text-xs rounded-lg bg-gray-100 text-gray-900 font-medium text-left">Light Grid</button>
+                        <button onclick="setBg('photo')" class="px-3 py-2 text-xs rounded-lg bg-gray-800 text-gray-300 hover:border-gray-600 text-left">Photo Texture</button>
+                        <button onclick="setBg('art')" class="px-3 py-2 text-xs rounded-lg bg-gradient-to-r from-gray-900 to-gray-200 text-white font-medium text-left">High Contrast</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-800">
+
+            <!-- CSS Code Snippet Output -->
+            <div class="flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">HTML & CSS Snippet</span>
+                    <button onclick="copyCode()" class="text-xs text-gray-400 hover:text-white underline">Copy Code</button>
+                </div>
+                <div class="relative flex-1">
+                    <pre class="bg-gray-900 border border-gray-800 rounded-lg p-3 text-[11px] font-mono text-gray-300 overflow-x-auto max-h-56 leading-relaxed select-all"><code id="codeBlock">/* 1. Outer Container */
+.comet-btn {
+  position: relative;
+  padding: 2px;
+  border-radius: 9999px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+/* 2. Rotating Conic Border */
+.comet-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 300%; height: 300%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(0,0,0,0.95) 0deg,
+    rgba(0,0,0,0.5) 60deg,
+    transparent 180deg
+  );
+  transform: translate(-50%, -50%);
+  animation: spin 2.5s linear infinite;
+}
+
+/* 3. Glassmorphism Inner Button */
+.comet-btn-inner {
+  position: relative;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 9999px;
+  color: #000;
+  padding: 12px 28px;
+  font-weight: 600;
+}
+
+@keyframes spin {
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}</code></pre>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-white text-black font-medium text-xs px-4 py-2.5 rounded-lg shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+        Code copied to clipboard!
+    </div>
+
+    <!-- Interactive Logic -->
+    <script>
+        const buttonWrapper = document.getElementById('buttonWrapper');
+        const canvasStage = document.getElementById('canvasStage');
+        const currentBgLabel = document.getElementById('currentBgLabel');
+
+        // Speed Controller
+        function setSpeed(speed) {
+            buttonWrapper.classList.remove('speed-fast', 'speed-normal', 'speed-slow');
+            buttonWrapper.classList.add(`speed-${speed}`);
+
+            ['fast', 'normal', 'slow'].forEach(s => {
+                const btn = document.getElementById(`btn-speed-${s}`);
+                if (s === speed) {
+                    btn.className = "py-1.5 text-xs rounded-md bg-white/10 text-white font-medium transition";
+                } else {
+                    btn.className = "py-1.5 text-xs rounded-md text-gray-400 hover:text-white font-medium transition";
+                }
+            });
+        }
+
+        // Mode Controller
+        function setMode(mode) {
+            buttonWrapper.classList.remove('mode-always', 'mode-hover-only');
+            buttonWrapper.classList.add(`mode-${mode}`);
+
+            const btnAlways = document.getElementById('btn-mode-always');
+            const btnHover = document.getElementById('btn-mode-hover-only');
+
+            if (mode === 'always') {
+                btnAlways.className = "w-full text-left px-3 py-2 text-xs rounded-lg border border-white/20 bg-white/10 text-white flex justify-between items-center";
+                btnHover.className = "w-full text-left px-3 py-2 text-xs rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white hover:border-gray-700 flex justify-between items-center";
+            } else {
+                btnHover.className = "w-full text-left px-3 py-2 text-xs rounded-lg border border-white/20 bg-white/10 text-white flex justify-between items-center";
+                btnAlways.className = "w-full text-left px-3 py-2 text-xs rounded-lg border border-gray-800 bg-gray-900 text-gray-400 hover:text-white hover:border-gray-700 flex justify-between items-center";
+            }
+        }
+
+        // Background Swapper
+        function setBg(bgType) {
+            canvasStage.className = "flex-1 flex items-center justify-center p-8 transition-all duration-500 relative min-h-[380px] ";
+            
+            if (bgType === 'dark') {
+                canvasStage.classList.add('bg-pattern-dark');
+                currentBgLabel.textContent = "Dark Grid";
+            } else if (bgType === 'light') {
+                canvasStage.classList.add('bg-pattern-light');
+                currentBgLabel.textContent = "Light Grid";
+            } else if (bgType === 'photo') {
+                canvasStage.classList.add('bg-pattern-photo');
+                currentBgLabel.textContent = "Photo Texture";
+            } else if (bgType === 'art') {
+                canvasStage.classList.add('bg-pattern-art');
+                currentBgLabel.textContent = "High Contrast Art";
+            }
+        }
+
+        // Clipboard Copy
+        function copyCode() {
+            const codeText = document.getElementById('codeBlock').innerText;
+            
+            // Native fallback for browser iframe context
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
