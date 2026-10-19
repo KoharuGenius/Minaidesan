@@ -1,6 +1,6 @@
 ;一番最初に呼び出されるファイル
 
-[title name="ティラノスクリプト解説"]
+[title name="Minaide"]
 
 [stop_keyconfig]
 
@@ -12,6 +12,8 @@
 ;ゲームで必ず必要な初期化処理はこのファイルに記述するのがオススメ
 [loadjs storage="mymodule.js"]
 [loadcss file="./data/others/custom.css"]
+[loadjs storage="game.js"]
+[loadcss file="./data/others/game.css"]
 
 ;for charactor
 [chara_new name="minami" storage="./chara/box_normal.png" jname="みなみ"]
@@ -20,7 +22,7 @@
 
 ; popopo設定　少しポップで明るい印象（三角波）
 [popopo type="none"]
-[popopo type="triangle" frequency="E" octave="1" noplaychars="…、。！？" chara="のぞみ"]
+[popopo type="triangle" frequency="E" octave="1" noplaychars="…、。！？" chara="みなみ"]
 
 ;****Macro Define
 [macro name="choice"]
@@ -41,5 +43,3 @@
 @jump storage="title.ks"
 
 [s]
-
-
