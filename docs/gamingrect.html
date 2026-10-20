@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲーミンググラデーション枠付きガラスカード</title>
+    <style>
+        /* リセット＆基本背景設定 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 背景透過とぼかしが分かりやすいようにカラフルな背景模様を配置 */
+            background: 
+                radial-gradient(circle at 20% 20%, #ff007f 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, #00d2ff 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #7928ca 0%, transparent 50%),
+                #111827;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 虹色グラデーション（色のみ）が横方向に流れるアニメーション */
+        @keyframes rainbowShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 200% 50%;
+            }
+        }
+
+        /* カードのベース構造 (500px x 500px) */
+        .gaming-card {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            border-radius: 20px;
+            /* 背景を透過させつつ、背景ぼかし(blur)を適用 */
+            background-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* 4pxの動くゲーミンググラデーション枠線を作る擬似要素 */
+        .gaming-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 4px; /* 枠線の太さ (4px) */
+            
+            /* 横方向にループするリニアグラデーション */
+            background: linear-gradient(
+                90deg, 
+                #ff0000, 
+                #ff7f00, 
+                #ffff00, 
+                #00ff00, 
+                #00ffff, 
+                #0000ff, 
+                #8b00ff, 
+                #ff0000,
+                #ff7f00, 
+                #ffff00, 
+                #00ff00, 
+                #00ffff, 
+                #0000ff, 
+                #8b00ff, 
+                #ff0000
+            );
+            background-size: 200% 100%;
+            
+            /* マスク処理: 中央を繰り抜き、4pxの枠線部分だけをグラデーションにする */
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+
+            /* 枠自体の変形・回転は行わず、背景画像（色）のみをスムーズにシフト移動 */
+            animation: rainbowShift 3s linear infinite;
+            pointer-events: none;
+        }
+
+        /* カード内のコンテンツ表示 */
+        .card-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .card-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="gaming-card">
+        <h1 class="card-title">GAMING CARD</h1>
+        <p class="card-text">
+            500px × 500px<br>
+            ・枠自体は回転せず色のみが移動<br>
+            ・4px ゲーミングライン<br>
+            ・枠内はバックグラウンド透過＋ぼかし(blur)
+        </p>
+    </div>
+
+</body>
+</html>
