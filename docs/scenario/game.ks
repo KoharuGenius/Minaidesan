@@ -12,38 +12,45 @@
 
 
 @bg storage="board.jpg" time=500
+;メニューボタンの表示
+@showmenubutton
+
 @layopt layer="message1" visible="true"
 @current layer="message1"
 
 @chara_show name="minami" left=700 time=500
-
 [eval exp="disp_gameboard();"]
-[eval exp="disp_card();"]
 @layopt layer="1" visible="true"
 
 *initgame
-さあ、はじめましょ♪
-[eval exp="initGame();"]
+[cm]
+さあ、はじめましょう[r]
+[link target="*startgame"][mark]【ゲームリセット】[endmark][endlink]
 *resumegame
 [s]
 
+*startgame
+[eval exp="initGame();"]
+@jump target="*initgame"
+
 *gamecpuwin
 [cm]
-わーい勝ったー
+わーい勝ったー[p]
 @jump target="*gameend"
 
 *gameplayerwin
 [cm]
-あーあ負けちゃった…
+あーあ負けちゃった…[p]
 @jump target="*gameend"
 
 *gamedraw
 [cm]
-引き分けだね
+引き分けだね[p]
 @jump target="*gameend"
 
 *gameend
-[glink color="btn_07_white" text="NEXT GAME" width=420 target="*initgame" x=40 y=400 size=20]
+@jump target="*initgame"
+;[glink color="btn_07_white" text="NEXT GAME" width=420 target="*initgame" x=40 y=400 size=20]
 [s]
 
 
