@@ -25,7 +25,7 @@
 *initgame
 [cm]
 さあ、はじめましょう[r]
-[link target="*startgame"][mark]【ゲームリセット】[endmark][endlink]
+[link target="*startgame"][mark]【ゲームスタート】[endmark][endlink]
 *resumegame
 [s]
 
