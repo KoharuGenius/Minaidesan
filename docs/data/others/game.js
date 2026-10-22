@@ -51,7 +51,7 @@ const strhtml=`
     </div>
 
     <!-- リーチカットイン演出用要素 -->
-    <div id="reach-cutin" class="reach-cutin">
+    <div id="reach-cutin" class="reach-cutin hidden">
       <!-- <div class="reach-bg-lines"></div> -->
       <div class="reach-banner">⚡ REACH! ⚡</div>
       <!-- <div class="reach-subtext">ONE MOVE TO WIN</div> -->
@@ -84,6 +84,9 @@ function initGame() {
   selectedHandIndex = null;
   document.getElementById('overlay').classList.add('hidden');
 
+  //const cutin = document.getElementById('reach-cutin');
+  //if (cutin) cutin.classList.add('hidden');
+  
   // 先手後手ランダム決定
   currentPlayer = Math.random() < 0.5 ? 1 : 2;
 
@@ -199,9 +202,13 @@ function initGame() {
       const cutin = document.getElementById('reach-cutin');
       if (!cutin) return;
 
-      cutin.classList.remove('active');
-      void cutin.offsetWidth; // リフロー発生によるアニメーション再トリガー
-      cutin.classList.add('active');
+      // hidden を外して表示
+      cutin.classList.remove('hidden');
+
+      // 一定時間（900ms）後に hidden を付与して隠す
+      setTimeout(() => {
+        cutin.classList.add('hidden');
+      }, 900);
     }
 
     function checkWin(targetField) {
