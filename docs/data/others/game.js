@@ -44,22 +44,23 @@ const strhtml=`
     </div>
 
     <!-- ゲーム終了時のオーバーレイ -->
-    <div id="overlay" class="overlay hidden">
-      <div id="overlay-title" class="overlay-title">PLAYER 1 WIN</div>
-      <div id="overlay-desc" class="overlay-desc">三枚の図柄が揃いました！</div>
+    <div id="overlay" class="overlay">
+      <div id="overlay-title" class="overlay-title">ゲームを始めます</div>
+      <!-- <div id="overlay-desc" class="overlay-desc">三枚の図柄が揃いました！</div> -->
       <!-- <button class="btn-main" onclick="initGame()">NEXT GAME</button> -->
     </div>
 
     <!-- リーチカットイン演出用要素 -->
     <div id="reach-cutin" class="reach-cutin">
-      <div class="reach-bg-lines"></div>
+      <!-- <div class="reach-bg-lines"></div> -->
       <div class="reach-banner">⚡ REACH! ⚡</div>
-      <div class="reach-subtext">ONE MOVE TO WIN</div>
+      <!-- <div class="reach-subtext">ONE MOVE TO WIN</div> -->
     </div>
   </div>
   `;
   $("#game-container").remove();
   $(".1_fore").append(strhtml);
+  //$(".fix").append(strhtml);
 }
 
 const SYMBOLS = ['〇', '×', '△', '□'];
@@ -346,13 +347,17 @@ function initGame() {
 
       if (bestMove) {
         if (bestMove.type === 'SKIP') {
-          isCpuThinking = false;
-          hands[cpuPlayer].splice(bestMove.handIndex, 1);
-          graveyard.push('S');
-          selectedHandIndex = null;
-          setMessage("CPU は スキップ(S) を出しました");
-          endTurn();
-        } else if (bestMove.type === 'PLAY') {
+        // 1. 手札からSを削除して墓地へ移動
+	      hands[cpuPlayer].splice(bestMove.handIndex, 1);
+	      graveyard.push('S');
+	      selectedHandIndex = null;
+	      setMessage("CPU は スキップ(S) を出しました");
+	      // 2. 中央スロット（インデックス1）に一時的にスキップ演出を表示してターン終了
+	      animateCpuSkip(() => {
+	        isCpuThinking = false;
+	        endTurn();
+	      });
+      } else if (bestMove.type === 'PLAY') {
           const success = executeMoveWithoutEndTurn(bestMove.handIndex, bestMove.slotIndex);
           if (success) {
             highlightCpuSlot(bestMove.slotIndex, () => {
@@ -363,6 +368,7 @@ function initGame() {
             isCpuThinking = false;
           }
         }
+ 
       } else {
         isCpuThinking = false;
         endTurn();
@@ -421,13 +427,38 @@ function initGame() {
       }, 1050);
     }
 
+    function animateCpuSkip(callback) {
+  	const slots = document.querySelectorAll('#field-slots .card');
+  	const targetSlot = slots[1]; // 中央のスロット（インデックス 1）
+
+  	if (!targetSlot) {
+    		callback();
+    		return;
+  	}
+
+  	// 元のテキスト（'+' や 図柄）を保持
+  	const originalText = targetSlot.textContent;
+  	const originalClass = targetSlot.className;
+
+ 	// 中央スロットに一時的に 'S' を表示し、ハイライトクラスを付与
+  	targetSlot.textContent = 'S';
+  	targetSlot.className = 'card field-card cpu-highlight';
+
+  	// アニメーション完了（800ms）後に消去して画面再描画＆コールバック実行
+  	setTimeout(() => {
+    		targetSlot.textContent = originalText;
+    		targetSlot.className = originalClass;
+    		callback();
+  	}, 800);
+    }
+
     function setMessage(msg) {
       document.getElementById('message-bar').textContent = msg;
     }
 
     function showEndGame(title, desc, target) {
       document.getElementById('overlay-title').textContent = title;
-      document.getElementById('overlay-desc').textContent = desc;
+      //document.getElementById('overlay-desc').textContent = desc; 
       document.getElementById('overlay').classList.remove('hidden');
       //ティラノスクリプトを動かす！
       TYRANO.kag.ftag.startTag("jump",{target:target});

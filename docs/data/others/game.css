@@ -250,16 +250,16 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #111111;
-      color: #ffffff;
+      /* 修正: 黒背景を透明にし、要素背後のクリック操作のみ無効化 */
+	    background-color: transparent; 
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 30;
-      pointer-events: none;
-      opacity: 0;
-      overflow: hidden;
+	    justify-content: center;
+	    align-items: center;
+	    z-index: 30;
+	    pointer-events: none;
+	    opacity: 0;
+	    overflow: hidden;
     }
 
     .reach-cutin.active {
@@ -338,21 +338,32 @@
       }
     }
 
-    /* CPUが置いた位置を強調する3回点滅アニメーション */
+    /* CPUが置いた位置を強調するアニメーション */
     .card.cpu-highlight {
-      animation: cpuFlash 0.35s ease-in-out 3;
+     	position: relative;
+  	/* アニメーション用のCSS変数を初期化 */
+  	--border-angle: 0deg;
+  	/* conic-gradient で 3px 相当の点（扇形）を作成し、border-image で枠線に適用 */
+  	border: 2px solid transparent !important;
+  	background-image: 
+    	linear-gradient(#ffffff, #ffffff), 
+    	conic-gradient(from var(--border-angle), #111111 0deg 15deg, transparent 15deg 360deg);
+  	background-origin: border-box;
+  	background-clip: padding-box, border-box;
+  	animation: rotateDot 0.8s linear 1;
     }
 
-    @keyframes cpuFlash {
-      0%, 100% {
-        background-color: #ffffff;
-        color: #111111;
-        transform: scale(1);
-      }
-      50% {
-        background-color: #111111;
-        color: #ffffff;
-        transform: scale(1.08);
-        box-shadow: 0 0 12px rgba(0,0,0,0.8);
-      }
+    /* @property を使って角度変数 (--border-angle) をアニメーション補間できるように定義 */
+    @property --border-angle {
+    	syntax: '<angle>';
+    	initial-value: 0deg;
+    	inherits: false;
     }
+
+    @keyframes rotateDot {
+  	0% {
+	--border-angle: 0deg;
+  	}
+  	100% {
+    	--border-angle: 360deg;
+  	}
