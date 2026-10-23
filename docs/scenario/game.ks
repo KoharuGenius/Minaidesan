@@ -4,34 +4,29 @@
 [clearfix]
 [start_keyconfig]
 
-;メッセージウィンドウの設定
-[position layer="message1" left=20 top=550 width=600 height=150 page="fore" visible="true"]
-
-;文字が表示される領域を調整
-[position layer="message1" page="fore" margint="45" marginl="50" marginr="70" marginb="60"]
-
-
-@bg storage="board.jpg" time=500
+;@bg storage="board.jpg" time=500
+@bg storage="black.jpg" time=100
 ;メニューボタンの表示
 @showmenubutton
 
-@layopt layer="message1" visible="true"
-@current layer="message1"
+@layopt layer="message0" visible="true"
 
-@chara_show name="minami" left=700 time=500
-[eval exp="disp_gameboard();"]
+@chara_show_minami
+
+@eval exp="f.gamebusy = false"
+[iscript]
+disp_gameboard();
+disp_insertcoin('Ready?');
+disp_button();
+[endscript]
+
 @layopt layer="1" visible="true"
 
 *initgame
 [cm]
 さあ、はじめましょう[r]
-[link target="*startgame"][mark]【ゲームスタート】[endmark][endlink]
 *resumegame
 [s]
-
-*startgame
-[eval exp="initGame();"]
-@jump target="*initgame"
 
 *gamecpuwin
 [cm]
@@ -49,8 +44,12 @@
 @jump target="*gameend"
 
 *gameend
+次のゲームを始めるよ
+[iscript]
+disp_insertcoin('');
+document.getElementById('insertcoin').classList.remove('hidden');
+[endscript]
 @jump target="*initgame"
-;[glink color="btn_07_white" text="NEXT GAME" width=420 target="*initgame" x=40 y=400 size=20]
 [s]
 
 

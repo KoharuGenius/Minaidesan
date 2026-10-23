@@ -6,38 +6,23 @@
 
 
 [bg storage="black.jpg" time="100"]
+@layopt layer=message0 visible=true
 
 ;メニューボタンの表示
 @showmenubutton
 
-;メッセージウィンドウの設定
-[position layer="message0" left=160 top=500 width=1000 height=200 page=fore visible=true]
-
-;文字が表示される領域を調整
-[position layer=message0 page=fore margint="45" marginl="50" marginr="70" marginb="60"]
-
-
-;メッセージウィンドウの表示
-@layopt layer=message0 visible=true
-
-;キャラクターの名前が表示される文字領域
-[ptext name="chara_name_area" layer="message0" color="white" size=28 bold=true x=180 y=510]
-
-;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
-[chara_config ptext="chara_name_area"]
-
-
 ;---
-[eval exp="disp_insertcoin();"]
+;[eval exp="disp_insertcoin();"]
+[eval exp="disp_gameboard();"]
+[eval exp="disp_noise();"]
+@layopt layer="0" visible="true"
 @layopt layer="1" visible="true"
 
 #
 （ふらっと立ち寄ったお店の一角に古びたゲーム台が置かれていた）[p]
-へぇ、あまり見たことが無いゲームだな[p]
+なんだこりゃ？[p]
 ……………[p]
 「コインを入れろ」としか出てこないけど？[p]
-……
-@wait time=700
 ちょっとやってみるか[p]
 
 ;@playse storage=".mp3"
@@ -46,93 +31,112 @@
 ;
 ;なまえをいれてください【ああああ】[OK]
 ;
-[eval exp="disp_entername();"]
+@eval exp="disp_entername('なまえをいれてください：【ああああ】');"
 ;@layopt layer="1" visible="true"
 
 名前？[r]
 「OK」ボタンしか無いぞ？
 
-[glink color="btn_07_white" text="OK" width=100 target="*enter_game" y=400 size=20]
+[glink color="btn_07_white" text="OK" width=100 target="*enter_game" x=260 y=320 size=20]
 
 [s]
 
 *enter_game
-@layopt layer="1" visible="false"
-@chara_show name="minami"
+;@layopt layer="1" visible="false"
+;@chara_show name="minami"
+@chara_show_minami
 #みなみ
 [dekamoji]よ…ようこそ！ああああ君！[resetfont][p]
 
 わたしは【皆井出（みないで）みなみ】です[p]
-趣味は読書で、[r]
-スリーサイズは…[p]
+趣味は読書で…[p]
 
-#俺
+#
 あれ…？[r]
-み、【皆井出さん】…！？[p]
+み、皆井出さん…！？[p]
 
 ;#みなみ:boxodrk
 #みなみ
 あれ？[r]
 ああああ君じゃなくて…[p]
 
-#俺
-なんでこんなところに？[p]
+#
+なんでゲームの中に？[p]
 
 #みなみ
 こっちが聞きたい！[p]
+……………[p]
+何、ジロジロ見てるの？[p]
 
-#俺
-じゃあ、スリーサイズ教えて[r]
-前から知りたかったんだ♪[p]
+#
+目のやり場に困るんだが…[p]
+
+#みなみ
+あっ………！[r]
+[dekamoji]み、見ないでッ！[resetfont][p]
 
 ;SE
 ;@playse storage=""
-@chara_hide name="minami" time=100
+@chara_hide_minami
 
-;▼INSERT COIN
-[eval exp="disp_insertcoin();"]
-@layopt layer="1" visible="true"
-#俺
+#
 [dekamoji]おいっ！[resetfont][p]
 
-なんで【皆井出さん】がゲームの中に…[r]
-気になるじゃないか…[p]
+なんで皆井出さんが…[r]
+気になるじゃないか！！[p]
 
 ;@playse storage=".mp3"
 チャリン。[p]
 
-@layopt layer="1" visible="false"
-@chara_show name="minami"
+@chara_show_minami
 #みなみ
-[dekamoji]【ああああ君】、勝負しましょ！[resetfont][p]
+[dekamoji]ああああ君、勝負しましょ！[resetfont][p]
 
-#俺
-だから俺の名前は…[r]
-あ、あとスリーサイズ！[p]
+#
+【ああああ君】って誰だよっ！[p]
+知ってるだろ！俺の名前は…[p]
 
 #みなみ
 そんなこと勝負に関係あるの？[p]
 
-#俺
-……………[r]
-自分で言いかけてなかったっけ？[p]
+#
+……………[p]
 
 #みなみ
-【台本】にはあるけど[r]
-【ああああ君】には言わない！[p]
+【台本】にそう書いてあるの[p]
 
-#俺
-だから俺は、[r]
-【ああああ君】じゃなくって…[p]
+#
+【台本】…[p]
 
+俺が勝負に勝ったらどうなるの？[p]
+
+#みなみ
+ええっと台本には……[p]
+
+#みなみ
+……………！！[p]
+
+#みなみ
+嘘でしょ！？[p]
+無理無理無理無理！！[p]
+
+@chara_hide_minami
+
+#
+[dekamoji]おいっ！[resetfont][p]
+余計に気になるじゃないか！！[p]
+
+;@playse storage=".mp3"
+チャリン。[p]
+
+@chara_show_minami
 #みなみ
 それでは、衣装を購入してください[p]
 
 #俺
 それは勝負に関係あるのか！[p]
-……………えっと、[p]
-そういえば、【皆井出さん】[r]
-今、何着てるの？[p]
+……………っていうかさ、[p]
+皆井出さん、今何着てるの？[p]
 
 ;照れ怒り
 #みなみ
