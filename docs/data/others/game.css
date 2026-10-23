@@ -1,7 +1,8 @@
 /* 500x500px 盤面コンテナ */
     #game-container {
+      position: relative;
       top:20px;
-      left:20px;
+      left:60px;
       width: 500px;
       height: 500px;
       background-color: #ffffff;
@@ -12,7 +13,6 @@
       flex-direction: column;
       justify-content: space-between;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      position: relative;
       overflow: hidden;
     }
 
@@ -227,9 +227,52 @@
       color: #444;
     }
 
-    .btn-main {
+    /* insertCoin用 */
+    .insertcoin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background-color: #111111;
-      color: #ffffff;
+      border: 4px solid #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .insertcoin.hidden {
+      display: none;
+    }
+
+    .insertcoin-title {
+      font-size: 24px;
+      font-weight: 900;
+      color:#f8f8f8;
+      letter-spacing: 2px;
+    }
+
+    .floating-arrow {
+      display: inline-block; /* 上下動（transform）を有効にするため */
+      font-size: 24px;
+      animation: float 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes float {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(8px); /* 下に移動する距離 */
+    }
+    }
+
+    .btn-main {
+      color: #111111;
+      background-color: #ffffff;
       border: none;
       padding: 10px 24px;
       font-size: 14px;
@@ -313,17 +356,6 @@
       border-bottom: 4px solid #111111;
     }
 
-    .reach-subtext {
-      position: relative;
-      z-index: 2;
-      margin-top: 14px;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: #aaaaaa;
-      font-weight: 800;
-      transform: rotate(-7deg);
-    }
-
     /* リーチ状態のカードスロット点滅 */
     .card.reach-pulse {
       border-color: #111111 !important;
@@ -345,17 +377,17 @@
 
     /* CPUが置いた位置を強調するアニメーション */
     .card.cpu-highlight {
-     	position: relative;
-  	/* アニメーション用のCSS変数を初期化 */
-  	--border-angle: 0deg;
-  	/* conic-gradient で 3px 相当の点（扇形）を作成し、border-image で枠線に適用 */
-  	border: 2px solid transparent !important;
-  	background-image: 
+      position: relative;
+  	  /* アニメーション用のCSS変数を初期化 */
+  	  --border-angle: 0deg;
+  	  /* conic-gradient で 3px 相当の点（扇形）を作成し、border-image で枠線に適用 */
+  	  border: 2px solid transparent !important;
+  	  background-image: 
     	linear-gradient(#ffffff, #ffffff), 
     	conic-gradient(from var(--border-angle), #111111 0deg 15deg, transparent 15deg 360deg);
-  	background-origin: border-box;
-  	background-clip: padding-box, border-box;
-  	animation: rotateDot 0.8s linear 1;
+  	  background-origin: border-box;
+  	  background-clip: padding-box, border-box;
+  	  animation: rotateDot 0.8s linear 1;
     }
 
     /* @property を使って角度変数 (--border-angle) をアニメーション補間できるように定義 */
@@ -367,8 +399,69 @@
 
     @keyframes rotateDot {
   	0% {
-	--border-angle: 0deg;
+	    --border-angle: 0deg;
   	}
   	100% {
     	--border-angle: 360deg;
   	}
+    }
+
+    /* noise 外枠（幅400px, 高さ550px） */
+    .noise-container {
+      width: 400px;
+      height: 550px;
+      position: relative;
+      top:0px;
+      left:720px;
+      overflow: hidden;
+      background-color: #666666;
+      border-radius: 8px;
+    }
+
+    /* 
+      【極小負荷】垂直・水平の直線のみで作るブロックノイズ層
+      ・斜め線を一切使わないため、描画コストが最小
+      ・ドット（ブロック）のサイズを大きめ（6px〜12px）に設定し、描画要素数を削減
+    */
+    .noise-layer {
+      position: absolute;
+      top: -2%;
+      left: -2%;
+      width: 104%;
+      height: 104%;
+	filter: contrast(0.2) brightness(0.75);
+      /* 縦線と横線を交差させてグリッドブロックを作成 */
+      background-image: 
+        repeating-linear-gradient(90deg, #fff 0 3px, transparent 3px 9px),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0 4px, transparent 4px 8px);
+
+      background-size: 18px 18px, 24px 24px;
+      opacity: 0.5;
+
+      /* GPU処理への最適化 */
+      will-change: transform, background-position;
+      animation: block-noise-step 0.5s steps(1) infinite;
+    }
+
+    /* デジタル感（走査線） */
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.3) 0px,
+        rgba(0, 0, 0, 0.3) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
+
+    /* 格子パターンを瞬間的に大きくジャンプさせてコマ送りノイズ化 */
+    @keyframes block-noise-step {
+      0%   { transform: translate(0, 0); background-position: 0 0, 0 0; }
+      25%  { transform: translate(-4px, 2px); background-position: -18px 36px, 24px -12px; }
+      50%  { transform: translate(3px, -3px); background-position: 36px -18px, -48px 24px; }
+      75%  { transform: translate(-2px, -1px); background-position: -54px 18px, 12px -36px; }
+      100% { transform: translate(0, 0); background-position: 0 0, 0 0; }
+    }

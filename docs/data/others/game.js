@@ -44,23 +44,43 @@ const strhtml=`
     </div>
 
     <!-- ゲーム終了時のオーバーレイ -->
-    <div id="overlay" class="overlay">
-      <div id="overlay-title" class="overlay-title">ゲームを始めます</div>
-      <!-- <div id="overlay-desc" class="overlay-desc">三枚の図柄が揃いました！</div> -->
-      <!-- <button class="btn-main" onclick="initGame()">NEXT GAME</button> -->
+    <div id="overlay" class="overlay hidden">
+      <div id="overlay-title" class="overlay-title">ああああ Win!</div>
     </div>
 
     <!-- リーチカットイン演出用要素 -->
     <div id="reach-cutin" class="reach-cutin hidden">
       <!-- <div class="reach-bg-lines"></div> -->
       <div class="reach-banner">⚡ REACH! ⚡</div>
-      <!-- <div class="reach-subtext">ONE MOVE TO WIN</div> -->
+    </div>
+
+    <!-- INSERT COIN -->
+    <div id="insertcoin" class="insertcoin">
+    <p class="insertcoin-title"><span class="floating-arrow">▼</span> INSERT COIN</p>
     </div>
   </div>
   `;
   $("#game-container").remove();
   $(".1_fore").append(strhtml);
   //$(".fix").append(strhtml);
+}
+
+function disp_insertcoin(strtxt){
+  if(strtxt==""){
+    strtxt=`
+    <p class="insertcoin-title"><span class="floating-arrow">▼</span> INSERT COIN</p>
+    `;
+  }
+  document.getElementById('insertcoin').innerHTML = `<p class="insertcoin-title">${strtxt}</p>`;
+  document.getElementById('insertcoin').classList.remove('hidden');
+}
+
+function disp_button(){
+    const strhtml=`
+    <button class="btn-main" onclick="initGame()">START!</button>
+    `;
+    $(".btn-main").remove();
+    $("#insertcoin").append(strhtml);
 }
 
 const SYMBOLS = ['〇', '×', '△', '□'];
@@ -78,10 +98,12 @@ const cpuPlayer = 2; // CPUは常にP2
 let isCpuThinking = false;
 
 function initGame() {
+  TYRANO.kag.stat.f.gamebusy = true;
   gameOver = false;
   isCpuThinking = false;
   graveyard = [];
   selectedHandIndex = null;
+  document.getElementById('insertcoin').classList.add('hidden');
   document.getElementById('overlay').classList.add('hidden');
 
   //const cutin = document.getElementById('reach-cutin');
@@ -468,6 +490,7 @@ function initGame() {
       //document.getElementById('overlay-desc').textContent = desc; 
       document.getElementById('overlay').classList.remove('hidden');
       //ティラノスクリプトを動かす！
+      TYRANO.kag.stat.f.gamebusy = false;
       TYRANO.kag.ftag.startTag("jump",{target:target});
     }
 
@@ -534,3 +557,14 @@ function initGame() {
       });
     }
 
+function disp_noise(){
+  const strhtml=`
+  <div class="noise-container">
+    <div class="noise-layer"></div>
+    <div class="noise-overlay"></div>
+  </div>
+  `;
+  $(".noise-container").remove();
+  $(".0_fore").append(strhtml);
+
+}

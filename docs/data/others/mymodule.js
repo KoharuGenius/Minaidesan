@@ -17,12 +17,12 @@ function disp_insertcoin(){
     disp_centertext(strhtml);
 }
 
-function disp_entername(){
-    const strhtml=`
-    なまえをいれてください：【ああああ】
-    `;
-    disp_centertext(strhtml);
-}
+//function disp_entername(){
+//    const strhtml=`
+//    なまえをいれてください：【ああああ】
+//    `;
+//    disp_centertext(strhtml);
+//}
 
 
 function disp_card(){
