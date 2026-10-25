@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEAD REACH</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      color: #111111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+
+    /* 500x500px 盤面コンテナ */
+    #game-container {
+      width: 500px;
+      height: 500px;
+      background-color: #ffffff;
+      border: 2px solid #111111;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ヘッダー情報 */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #111111;
+      padding-bottom: 8px;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .turn-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1px solid #111111;
+      border-radius: 16px;
+      background-color: #111111;
+      color: #ffffff;
+    }
+
+    .btn-reset {
+      background: none;
+      border: 1px solid #111111;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+      background-color: #111111;
+      color: #ffffff;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #666666;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .card-slot-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .card {
+      width: 70px;
+      height: 92px;
+      border: 2px solid #111111;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      font-weight: bold;
+      background-color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s;
+    }
+
+    /* 空枠スロットのスタイル */
+    .card.slot-empty {
+      border: 2px dashed #aaaaaa;
+      background-color: #f8f8f8;
+      color: #888888;
+      font-size: 20px;
+    }
+
+    .card.slot-empty:hover {
+      border-color: #111111;
+      color: #111111;
+      background-color: #f0f0f0;
+    }
+
+    /* 場（Field） */
+    .field-area {
+      background-color: #fafafa;
+      border: 1px dashed #ccc;
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .field-card {
+      box-shadow: 0 4px 0 #111111;
+    }
+
+    .field-card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 手札（Hand） */
+    .hand-area {
+      border-top: 1px solid #eeeeee;
+      padding-top: 6px;
+    }
+
+    .hand-card {
+      box-shadow: 0 4px 0 #111111;
+    }
+
+    .hand-card.selected {
+      background-color: #111111;
+      color: #ffffff;
+      transform: translateY(-6px);
+      box-shadow: 0 8px 0 #666666;
+    }
+
+    /* 出現カードカウンター */
+    .tracker-area {
+      border-top: 2px solid #111111;
+      padding-top: 6px;
+    }
+
+    .tracker-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .tracker-item {
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 3px 0;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .tracker-symbol {
+      font-weight: bold;
+      font-size: 13px;
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    /* メッセージ通知 */
+    .message-bar {
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      height: 18px;
+      line-height: 18px;
+      color: #333333;
+    }
+
+    /* オーバーレイ（勝敗表示用） */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.94);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .overlay-desc {
+      font-size: 14px;
+      color: #444;
+    }
+
+    .btn-main {
+      background-color: #111111;
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-main:hover {
+      background-color: #333333;
+    }
+
+    /* リーチカットイン演出 */
+    .reach-cutin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 30;
+      pointer-events: none;
+      overflow: hidden;
+      transition: opacity 0.2s ease;
+    }
+
+    .reach-cutin.hidden {
+      display: none;
+      opacity: 0;
+    }
+
+    .reach-banner {
+      position: relative;
+      z-index: 2;
+      background: #ffffff;
+      color: #111111;
+      width: 130%;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 6px;
+      transform: rotate(-7deg);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+      border-top: 4px solid #111111;
+      border-bottom: 4px solid #111111;
+    }
+
+    .card.reach-pulse {
+      border-color: #111111 !important;
+      animation: reachBlink 0.7s ease-in-out infinite alternate;
+    }
+
+    @keyframes reachBlink {
+      0% {
+        box-shadow: 0 4px 0 #111111;
+        transform: translateY(0);
+      }
+      100% {
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), 0 4px 0 #111111;
+        transform: translateY(-4px);
+        background-color: #111111;
+        color: #ffffff;
+      }
+    }
+
+    .card.highlight-player, .card.highlight-cpu {
+      position: relative;
+      border: 2px solid transparent !important;
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+    }
+
+    .card.highlight-player {
+      background-image: 
+        linear-gradient(#ffffff, #ffffff), 
+        conic-gradient(from var(--border-angle, 0deg), #111111 0deg 25deg, transparent 25deg 360deg);
+      animation: rotateDot 0.8s linear 1;
+    }
+
+    .card.highlight-cpu {
+      background-image: 
+        linear-gradient(#ffffff, #ffffff), 
+        conic-gradient(from var(--border-angle, 0deg), #e53e3e 0deg 25deg, transparent 25deg 360deg);
+      animation: rotateDot 0.8s linear 1;
+    }
+
+    @property --border-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    
+    @keyframes rotateDot {
+      0% {
+        --border-angle: 0deg;
+      }
+      100% {
+        --border-angle: 360deg;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <header>
+      <div class="title-group">
+        <h1>LEAD REACH</h1>
+      </div>
+      <div class="header-controls">
+        <div id="turn-badge" class="turn-badge">PLAYER TURN</div>
+        <button id="btn-reset-game" class="btn-reset" onclick="initGame()">RESET</button>
+      </div>
+    </header>
+
+    <!-- 対戦ビュー -->
+    <div id="play-view" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between; margin-top: 8px;">
+      <div id="message-bar" class="message-bar">手札のカードを選んでください</div>
+
+      <!-- 場 (3枠) -->
+      <div class="field-area">
+        <div class="section-label">
+          <span>FIELD (2 - 3 CARDS)</span>
+          <span>DECK: <span id="deck-count">0</span></span>
+        </div>
+        <div class="card-slot-group" id="field-slots"></div>
+      </div>
+
+      <!-- 手札 -->
+      <div class="hand-area">
+        <div class="section-label">
+          <span id="hand-label">PLAYER HAND</span>
+          <span>SELECT & PLAY</span>
+        </div>
+        <div class="card-slot-group" id="hand-slots"></div>
+      </div>
+
+      <!-- 出現カードカウンター (公開情報) -->
+      <div class="tracker-area">
+        <div class="section-label">EXPOSED CARDS COUNTER</div>
+        <div class="tracker-grid" id="tracker-grid"></div>
+      </div>
+    </div>
+
+    <!-- ゲーム終了時のオーバーレイ -->
+    <div id="overlay" class="overlay hidden">
+      <div id="overlay-title" class="overlay-title">PLAYER 1 WIN</div>
+      <div id="overlay-desc" class="overlay-desc">三枚の図柄が揃いました！</div>
+      <button class="btn-main" onclick="initGame()">NEXT GAME</button>
+    </div>
+
+    <!-- リーチカットイン演出 -->
+    <div id="reach-cutin" class="reach-cutin hidden">
+      <div class="reach-banner">⚡ REACH! ⚡</div>
+    </div>
+  </div>
+
+  <script>
+    const SYMBOLS = ['〇', '×', '△', '□'];
+    const TOTAL_COUNTS = { '〇': 5, '×': 5, '△': 5, '□': 5, '☆': 1, 'S': 2 };
+
+    let deck = [];
+    let graveyard = [];
+    let field = [null, null, null];
+    let hands = { 1: [], 2: [] };
+    let currentPlayer = 1;
+    let selectedHandIndex = null;
+    let gameOver = false;
+    
+    const cpuPlayer = 2;
+    let isActionInProgress = false;
+
+    function initGame() {
+      gameOver = false;
+      isActionInProgress = false;
+      graveyard = [];
+      selectedHandIndex = null;
+      document.getElementById('overlay').classList.add('hidden');
+      
+      const cutin = document.getElementById('reach-cutin');
+      if (cutin) cutin.classList.add('hidden');
+
+      currentPlayer = Math.random() < 0.5 ? 1 : 2;
+
+      deck = [];
+      SYMBOLS.forEach(s => { for (let i = 0; i < 5; i++) deck.push(s); });
+      deck.push('☆');
+      deck.push('S', 'S');
+      shuffle(deck);
+
+      field = [null, null, null];
+      let initialPool = [...SYMBOLS];
+      shuffle(initialPool);
+      
+      for (let i = 0; i < 2; i++) {
+        const symbol = initialPool[i];
+        field[i] = symbol;
+        const idx = deck.indexOf(symbol);
+        if (idx !== -1) deck.splice(idx, 1);
+      }
+
+      hands[1] = [drawCard(), drawCard()].filter(Boolean);
+      hands[2] = [drawCard(), drawCard()].filter(Boolean);
+
+      const startName = currentPlayer === 1 ? "PLAYER" : "CPU";
+
+      setMessage(`ゲーム開始。${startName} のターンです`);
+      render();
+
+      checkCpuTurn();
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function drawCard() {
+      return deck.length > 0 ? deck.pop() : null;
+    }
+
+    function selectHandCard(index) {
+      if (gameOver || isActionInProgress || currentPlayer === cpuPlayer) return;
+
+      selectedHandIndex = (selectedHandIndex === index) ? null : index;
+      if (selectedHandIndex !== null) {
+        const card = hands[currentPlayer][selectedHandIndex];
+        if (card === 'S') {
+          setMessage("場の任意の枠をクリックして スキップ(S) を使用してください");
+        } else {
+          setMessage("カードを配置・更新する場の枠をクリックしてください");
+        }
+      } else {
+        setMessage("手札のカードを選んでください");
+      }
+      render();
+    }
+
+    function playToField(slotIndex) {
+      if (gameOver || isActionInProgress || selectedHandIndex === null || currentPlayer === cpuPlayer) return;
+
+      const playedCard = hands[currentPlayer][selectedHandIndex];
+
+      if (playedCard === 'S') {
+        executeSkipMove(selectedHandIndex, true);
+        return;
+      }
+
+      executeMove(selectedHandIndex, slotIndex);
+    }
+
+    function executeSkipMove(handIndex, isPlayer) {
+      isActionInProgress = true;
+      hands[currentPlayer].splice(handIndex, 1);
+      graveyard.push('S');
+      selectedHandIndex = null;
+      
+      const pName = isPlayer ? `PLAYER` : "CPU";
+      setMessage(`${pName} は スキップ(S) を出しました`);
+
+      animateSkip(isPlayer, () => {
+        isActionInProgress = false;
+        endTurn();
+      });
+    }
+
+    function animateSkip(isPlayer, callback) {
+      const slots = document.querySelectorAll('#field-slots .card');
+      const targetSlot = slots[1];
+
+      if (!targetSlot) {
+        callback();
+        return;
+      }
+
+      const originalText = targetSlot.textContent;
+      const originalClass = targetSlot.className;
+      const highlightClass = isPlayer ? 'highlight-player' : 'highlight-cpu';
+
+      targetSlot.textContent = 'S';
+      targetSlot.className = `card field-card ${highlightClass}`;
+
+      setTimeout(() => {
+        targetSlot.textContent = originalText;
+        targetSlot.className = originalClass;
+        callback();
+      }, 800);
+    }
+
+    function executeMove(handIndex, slotIndex) {
+      const playedCard = hands[currentPlayer][handIndex];
+      const targetCard = field[slotIndex];
+
+      if (targetCard !== null && playedCard !== '☆' && playedCard === targetCard) {
+        setMessage("【ルール違反】同じ図柄の上には置けません");
+        return false;
+      }
+
+      isActionInProgress = true;
+
+      hands[currentPlayer].splice(handIndex, 1);
+      if (targetCard !== null) {
+        graveyard.push(targetCard);
+      }
+      field[slotIndex] = playedCard;
+      selectedHandIndex = null;
+
+      render();
+
+      const isPlayer = (currentPlayer !== cpuPlayer);
+      highlightSlot(slotIndex, isPlayer, () => {
+        isActionInProgress = false;
+
+        if (checkWin(field)) {
+          render();
+          const winnerName = isPlayer ? `PLAYER` : "CPU";
+          showEndGame(`${winnerName} WIN`, `三枚の図柄が揃いました！ ${winnerName} の勝利`);
+          gameOver = true;
+          return;
+        }
+
+        if (isReachState(field)) {
+          triggerReachCutin();
+        }
+
+        endTurn();
+      });
+
+      return true;
+    }
+
+    function highlightSlot(slotIndex, isPlayer, callback) {
+      const slots = document.querySelectorAll('#field-slots .card');
+      const targetSlot = slots[slotIndex];
+
+      if (!targetSlot) {
+        callback();
+        return;
+      }
+
+      const highlightClass = isPlayer ? 'highlight-player' : 'highlight-cpu';
+      targetSlot.classList.add(highlightClass);
+
+      setTimeout(() => {
+        targetSlot.classList.remove(highlightClass);
+        callback();
+      }, 800);
+    }
+
+    function triggerReachCutin() {
+      const cutin = document.getElementById('reach-cutin');
+      if (!cutin) return;
+
+      cutin.classList.remove('hidden');
+
+      setTimeout(() => {
+        cutin.classList.add('hidden');
+      }, 900);
+    }
+
+    function checkWin(targetField) {
+      if (targetField.some(s => s === null)) return false;
+
+      const nonWilds = targetField.filter(s => s !== '☆');
+      if (nonWilds.length === 0) return true;
+      const first = nonWilds[0];
+      return nonWilds.every(s => s === first);
+    }
+
+    function isReachState(targetField) {
+      const filledCards = targetField.filter(s => s !== null);
+      if (filledCards.length < 2) return false;
+
+      if (filledCards.length === 3) {
+        const nonWilds = targetField.filter(s => s !== '☆');
+        if (nonWilds.length <= 1) return true;
+        return nonWilds[0] === nonWilds[1] || nonWilds[1] === nonWilds[2] || nonWilds[0] === nonWilds[2];
+      }
+
+      if (filledCards.length === 2) {
+        const nonWilds = filledCards.filter(s => s !== '☆');
+        if (nonWilds.length <= 1) return true;
+        return nonWilds[0] === nonWilds[1];
+      }
+
+      return false;
+    }
+
+    function endTurn() {
+      if (deck.length > 0) {
+        const drawn = drawCard();
+        if (drawn) hands[currentPlayer].push(drawn);
+      }
+
+      if (deck.length === 0 && hands[1].length === 0 && hands[2].length === 0) {
+        render();
+        showEndGame("DRAW GAME", "山札と手札が無くなりました。引き分けです");
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      const pName = (currentPlayer === cpuPlayer) ? "CPU" : `PLAYER`;
+      setMessage(`${pName} のターンです`);
+      render();
+
+      checkCpuTurn();
+    }
+
+    function checkCpuTurn() {
+      if (!gameOver && currentPlayer === cpuPlayer) {
+        isActionInProgress = true;
+        setMessage("CPUが思考中...");
+        render();
+        setTimeout(playCpuTurn, 600);
+      }
+    }
+
+    /* CPU思考アルゴリズム (カードカウンティング・リーチ回避) */
+    function getBestMove(pHand, pField, pGraveyard) {
+      let candidateMoves = [];
+
+      for (let hIdx = 0; hIdx < pHand.length; hIdx++) {
+        const card = pHand[hIdx];
+
+        if (card === 'S') {
+          candidateMoves.push({ type: 'SKIP', handIndex: hIdx, score: 0 });
+          continue;
+        }
+
+        for (let slot = 0; slot < 3; slot++) {
+          const targetCard = pField[slot];
+          
+          if (targetCard !== null && card !== '☆' && card === targetCard) continue;
+
+          const simField = [...pField];
+          simField[slot] = card;
+
+          let score = 0;
+
+          if (checkWin(simField)) {
+            score = 10000;
+          } else {
+            const exposed = [...simField.filter(Boolean), ...pGraveyard, ...pHand];
+            const wasEmpty = pField[slot] === null;
+
+            if (isReachState(simField)) {
+              let remainingWinningCards = 0;
+              const nonWilds = simField.filter(s => s !== null && s !== '☆');
+              const neededSymbol = nonWilds.length > 0 ? nonWilds[0] : null;
+
+              if (neededSymbol) {
+                const exposedCount = exposed.filter(c => c === neededSymbol).length;
+                remainingWinningCards += Math.max(0, TOTAL_COUNTS[neededSymbol] - exposedCount);
+              }
+              const starExposed = exposed.filter(c => c === '☆').length;
+              remainingWinningCards += Math.max(0, TOTAL_COUNTS['☆'] - starExposed);
+
+              score -= (250 + remainingWinningCards * 80);
+            }
+
+            if (card === '☆') {
+              score -= 800;
+            }
+
+            if (!isReachState(simField) && card !== '☆') {
+              score += 100;
+              if (wasEmpty) score += 50;
+            }
+          }
+
+          candidateMoves.push({ type: 'PLAY', handIndex: hIdx, slotIndex: slot, score: score });
+        }
+      }
+
+      const skipMove = candidateMoves.find(m => m.type === 'SKIP');
+      if (skipMove) {
+        const playMoves = candidateMoves.filter(m => m.type === 'PLAY');
+        const hasSafePlay = playMoves.some(m => m.score >= 0);
+        if (!hasSafePlay) {
+          skipMove.score = 150;
+        } else {
+          skipMove.score = -100;
+        }
+      }
+
+      if (candidateMoves.length === 0) return null;
+
+      candidateMoves.sort((a, b) => b.score - a.score);
+      const topScore = candidateMoves[0].score;
+      const topMoves = candidateMoves.filter(m => m.score === topScore);
+      return topMoves[Math.floor(Math.random() * topMoves.length)];
+    }
+
+    function playCpuTurn() {
+      if (gameOver) {
+        isActionInProgress = false;
+        return;
+      }
+
+      const bestMove = getBestMove(hands[cpuPlayer], field, graveyard);
+
+      if (bestMove) {
+        if (bestMove.type === 'SKIP') {
+          executeSkipMove(bestMove.handIndex, false);
+        } else if (bestMove.type === 'PLAY') {
+          executeMove(bestMove.handIndex, bestMove.slotIndex);
+        }
+      } else {
+        isActionInProgress = false;
+        endTurn();
+      }
+    }
+
+    function setMessage(msg) {
+      document.getElementById('message-bar').textContent = msg;
+    }
+
+    function showEndGame(title, desc) {
+      document.getElementById('overlay-title').textContent = title;
+      document.getElementById('overlay-desc').textContent = desc;
+      document.getElementById('overlay').classList.remove('hidden');
+    }
+
+    function render() {
+      const badge = document.getElementById('turn-badge');
+      const pName = (currentPlayer === cpuPlayer) ? "CPU" : `PLAYER`;
+      badge.textContent = `${pName} TURN`;
+
+      document.getElementById('deck-count').textContent = deck.length;
+
+      const handLabel = (currentPlayer === cpuPlayer) ? "CPU HAND" : `PLAYER HAND`;
+      document.getElementById('hand-label').textContent = handLabel;
+
+      const fieldSlots = document.getElementById('field-slots');
+      fieldSlots.innerHTML = '';
+      const isReach = isReachState(field);
+
+      field.forEach((symbol, idx) => {
+        const card = document.createElement('div');
+        if (symbol === null) {
+          card.className = `card slot-empty ${isReach ? 'reach-pulse' : ''}`;
+          card.textContent = '+';
+        } else {
+          card.className = `card field-card ${isReach ? 'reach-pulse' : ''}`;
+          card.textContent = symbol;
+        }
+        card.onclick = () => playToField(idx);
+        fieldSlots.appendChild(card);
+      });
+
+      const handSlots = document.getElementById('hand-slots');
+      handSlots.innerHTML = '';
+      hands[currentPlayer].forEach((symbol, idx) => {
+        const card = document.createElement('div');
+        const isSelected = selectedHandIndex === idx;
+        card.className = `card hand-card ${isSelected ? 'selected' : ''}`;
+        
+        if (currentPlayer === cpuPlayer) {
+          card.textContent = '・';
+          card.style.opacity = '0.7';
+        } else {
+          card.textContent = symbol;
+        }
+
+        card.onclick = () => selectHandCard(idx);
+        handSlots.appendChild(card);
+      });
+
+      const exposedCards = [...field.filter(Boolean), ...graveyard];
+      const trackerGrid = document.getElementById('tracker-grid');
+      trackerGrid.innerHTML = '';
+
+      const allSymbols = [...SYMBOLS, '☆', 'S'];
+      allSymbols.forEach(type => {
+        const count = exposedCards.filter(c => c === type).length;
+        const total = TOTAL_COUNTS[type];
+        const item = document.createElement('div');
+        item.className = 'tracker-item';
+        item.innerHTML = `<span class="tracker-symbol">${type}</span>${count}/${total}`;
+        trackerGrid.appendChild(item);
+      });
+    }
+
+    initGame();
+  </script>
+</body>
+</html>
