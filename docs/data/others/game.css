@@ -2,7 +2,7 @@
     #game-container {
       position: relative;
       top:20px;
-      left:60px;
+      left:150px;
       width: 500px;
       height: 500px;
       background-color: #ffffff;
@@ -408,11 +408,11 @@
 
     /* noise 外枠（幅400px, 高さ550px） */
     .noise-container {
-      width: 400px;
-      height: 550px;
+      width: 380px;
+      height: 480px;
       position: relative;
-      top:0px;
-      left:720px;
+      top:20px;
+      left:830px;
       overflow: hidden;
       background-color: #666666;
       border-radius: 8px;
