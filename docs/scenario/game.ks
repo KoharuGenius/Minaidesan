@@ -14,19 +14,38 @@
 @chara_show_minami
 
 @eval exp="f.gamebusy = false"
-[iscript]
-disp_gameboard();
-disp_insertcoin('Ready?');
-disp_button();
-[endscript]
+@eval exp="disp_gameboard();"
 
 @layopt layer="1" visible="true"
 
+#みなみ
+さあ、はじめましょう
 *initgame
-[cm]
-さあ、はじめましょう[r]
+;[cm]
+[iscript]
+disp_insertcoin('Ready?');
+disp_button();
+[endscript]
 *resumegame
 [s]
+
+;ゲーム中ロード時
+*gameload
+@eval exp="disp_insertcoin('');"
+#
+あれ？[p]
+
+#みなみ
+対戦中のゲームはリセットされるの
+
+#
+ロードしたときも百円入れるのかよ…[p]
+
+チャリン。[p]
+
+#みなみ
+じゃあ再開ね！
+@jump target="*initgame"
 
 *gamecpuwin
 [cm]

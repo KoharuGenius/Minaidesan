@@ -31,7 +31,7 @@
 ;
 ;なまえをいれてください【ああああ】[OK]
 ;
-@eval exp="disp_entername('なまえをいれてください：【ああああ】');"
+@eval exp="disp_insertcoin('なまえをいれてください：【ああああ】');"
 ;@layopt layer="1" visible="true"
 
 名前？[r]

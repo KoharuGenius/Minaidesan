@@ -16,7 +16,7 @@
 [loadcss file="./data/others/game.css"]
 
 ;for charactor
-[chara_new name="minami" storage="./chara/box_normal.png" jname="みなみ"]
+[chara_new name="minami" storage="./chara/mnmnormal.png" jname="みなみ"]
 
 ;[chara_face name="nozomi" face="eee" storage="./chara/nzmeee.png"]
 
@@ -25,7 +25,7 @@
 [popopo type="triangle" frequency="E" octave="1" noplaychars="…、。！？" chara="みなみ"]
 
 ;メッセージウィンドウの設定
-[position layer="message0" left=160 top=550 width=1000 height=150 page=fore visible=true]
+[position layer="message0" left=0 top=550 width=800 height=150 page=fore visible=true]
 
 ;文字が表示される領域を調整
 [position layer=message0 page=fore margint="45" marginl="50" marginr="70" marginb="60"]
@@ -35,7 +35,7 @@
 ;@layopt layer=message0 visible=true
 
 ;キャラクターの名前が表示される文字領域
-[ptext name="chara_name_area" layer="message0" color="white" size=28 bold=true x=180 y=560]
+[ptext name="chara_name_area" layer="message0" color="white" size=28 bold=true x=20 y=560]
 
 ;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
 [chara_config ptext="chara_name_area"]
@@ -58,7 +58,7 @@
 
 [macro name="chara_show_minami"]
 @eval exp="$('.noise-container').remove();"
-@chara_show name="minami" left=720 width=400 height=720 time=500
+@chara_show name="minami" left=820 width=400 height=720 time=500
 [endmacro]
 
 ;メッセージボックスは非表示
