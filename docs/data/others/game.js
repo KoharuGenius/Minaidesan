@@ -4,8 +4,8 @@ const strhtml=`
   <div id="game-container">
     <header>
       <div class="title-group">
-        <h1>SYMBOL MATCH</h1>
-        <span class="sub-tag">vs CPU</span>
+        <h1>LEAD REACH!</h1>
+        <!-- <span class="sub-tag">vs CPU</span> -->
       </div>
       <div class="header-controls">
         <div id="turn-badge" class="turn-badge">P1 TURN</div>
@@ -55,8 +55,8 @@ const strhtml=`
     </div>
 
     <!-- INSERT COIN -->
-    <div id="insertcoin" class="insertcoin">
-    <p class="insertcoin-title"><span class="floating-arrow">▼</span> INSERT COIN</p>
+    <div id="gamemenu" class="gamemenu">
+    <p class="gamemenu-title"><span class="floating-arrow">▼</span> INSERT COIN</p>
     </div>
   </div>
   `;
@@ -65,22 +65,33 @@ const strhtml=`
   //$(".fix").append(strhtml);
 }
 
-function disp_insertcoin(strtxt){
-  if(strtxt==""){
-    strtxt=`
-    <p class="insertcoin-title"><span class="floating-arrow">▼</span> INSERT COIN</p>
-    `;
-  }
-  document.getElementById('insertcoin').innerHTML = `<p class="insertcoin-title">${strtxt}</p>`;
-  document.getElementById('insertcoin').classList.remove('hidden');
+function disp_gamemenu(strtxt){
+  const strhtml = `<p class="gamemenu-title">${strtxt}</p>`;
+  document.getElementById('gamemenu').innerHTML = strhtml;
+  document.getElementById('gamemenu').classList.remove('hidden');
 }
+
+function disp_insertcoin(strtxt){
+    const strhtml=`
+    <span class="floating-arrow">▼</span> INSERT COIN${strtxt}
+    `;
+  disp_gamemenu(strhtml);
+}
+
+function disp_menufloating(strtxt){
+  const strhtml=`
+    <span class="floating-arrow">${strtxt}</span>
+    `;
+  disp_gamemenu(strhtml);
+}
+
 
 function disp_button(){
     const strhtml=`
-    <button class="btn-main" onclick="initGame()">START!</button>
+    <div><button class="btn-main" onclick="initGame();">START!</button></div>
     `;
     $(".btn-main").remove();
-    $("#insertcoin").append(strhtml);
+    $("#gamemenu").append(strhtml);
 }
 
 const SYMBOLS = ['〇', '×', '△', '□'];
@@ -103,7 +114,7 @@ function initGame() {
   isCpuThinking = false;
   graveyard = [];
   selectedHandIndex = null;
-  document.getElementById('insertcoin').classList.add('hidden');
+  document.getElementById('gamemenu').classList.add('hidden');
   document.getElementById('overlay').classList.add('hidden');
 
   //const cutin = document.getElementById('reach-cutin');
@@ -134,7 +145,7 @@ function initGame() {
   // 手札を各2枚配る
   hands[1] = [drawCard(), drawCard()].filter(Boolean);
   hands[2] = [drawCard(), drawCard()].filter(Boolean);
-  const startName = currentPlayer === 1 ? "P1" : "CPU";
+  const startName = currentPlayer === 1 ? "ああああ" : "みなみ";
 
   setMessage(`ゲーム開始。${startName} のターンです`);
   render();
@@ -154,24 +165,16 @@ function initGame() {
     }
 
     function selectHandCard(index) {
-      if (gameOver || isCpuThinking || currentPlayer === cpuPlayer) return;
+      if (gameOver || isActionInProgress || currentPlayer === cpuPlayer) return;
 
-      const card = hands[currentPlayer][index];
-
-      // スキップ(S)カードの即時処理
-      if (card === 'S') {
-        hands[currentPlayer].splice(index, 1);
-        graveyard.push('S');
-        selectedHandIndex = null;
-        setMessage(`P${currentPlayer} は スキップ(S) を出しました`);
-        endTurn();
-        return;
-      }
-
-      // トグル選択
       selectedHandIndex = (selectedHandIndex === index) ? null : index;
       if (selectedHandIndex !== null) {
-        setMessage("カードを配置・更新する場の枠をクリックしてください");
+        const card = hands[currentPlayer][selectedHandIndex];
+        if (card === 'S') {
+          setMessage("場の任意の枠をクリックして スキップ(S) を使用してください");
+        } else {
+          setMessage("カードを配置・更新する場の枠をクリックしてください");
+        }
       } else {
         setMessage("手札のカードを選んでください");
       }
@@ -179,22 +182,67 @@ function initGame() {
     }
 
     function playToField(slotIndex) {
-      if (gameOver || isCpuThinking || selectedHandIndex === null || currentPlayer === cpuPlayer) return;
+      if (gameOver || isActionInProgress || selectedHandIndex === null || currentPlayer === cpuPlayer) return;
+
+      const playedCard = hands[currentPlayer][selectedHandIndex];
+
+      if (playedCard === 'S') {
+        executeSkipMove(selectedHandIndex, true);
+        return;
+      }
 
       executeMove(selectedHandIndex, slotIndex);
+    }
+
+    function executeSkipMove(handIndex, isPlayer) {
+      isActionInProgress = true;
+      hands[currentPlayer].splice(handIndex, 1);
+      graveyard.push('S');
+      selectedHandIndex = null;
+      
+      const pName = isPlayer ? "ああああ" : "みなみ";
+      setMessage(`${pName} は スキップ(S) を出しました`);
+
+      animateSkip(isPlayer, () => {
+        isActionInProgress = false;
+        endTurn();
+      });
+    }
+
+    function animateSkip(isPlayer, callback) {
+      const slots = document.querySelectorAll('#field-slots .card');
+      const targetSlot = slots[1];
+
+      if (!targetSlot) {
+        callback();
+        return;
+      }
+
+      const originalText = targetSlot.textContent;
+      const originalClass = targetSlot.className;
+      const highlightClass = isPlayer ? 'highlight-player' : 'highlight-cpu';
+
+      targetSlot.textContent = 'S';
+      targetSlot.className = `card field-card ${highlightClass}`;
+
+      setTimeout(() => {
+        targetSlot.textContent = originalText;
+        targetSlot.className = originalClass;
+        callback();
+      }, 800);
     }
 
     function executeMove(handIndex, slotIndex) {
       const playedCard = hands[currentPlayer][handIndex];
       const targetCard = field[slotIndex];
 
-      // ルール判定: 空き枠(null)でなく、かつ同じ図柄の上には置けない（☆は任意）
       if (targetCard !== null && playedCard !== '☆' && playedCard === targetCard) {
         setMessage("【ルール違反】同じ図柄の上には置けません");
         return false;
       }
 
-      // カード配置処理
+      isActionInProgress = true;
+
       hands[currentPlayer].splice(handIndex, 1);
       if (targetCard !== null) {
         graveyard.push(targetCard);
@@ -202,22 +250,51 @@ function initGame() {
       field[slotIndex] = playedCard;
       selectedHandIndex = null;
 
-      // 勝利判定
-      if (checkWin(field)) {
-        render();
-        const winnerName = (currentPlayer === cpuPlayer) ? "CPU" : `PLAYER ${currentPlayer}`;
-        showEndGame(`${winnerName} WIN`, `三枚の図柄が揃いました！ ${winnerName} の勝利`,"*gameplayerwin");
-        gameOver = true;
-        return true;
-      }
+      render();
 
-      // リーチ検出時のカットイン演出発動
-      if (isReachState(field)) {
-        triggerReachCutin();
-      }
+      const isPlayer = (currentPlayer !== cpuPlayer);
+      highlightSlot(slotIndex, isPlayer, () => {
+        isActionInProgress = false;
 
-      endTurn();
+        if (checkWin(field)) {
+          render();
+          const winnerName = isPlayer ? "ああああ" : "みなみ";
+          const target = (winnerName=="PLAYER")? "*gameplayerwin":"*gamecpuwin";
+          showEndGame(`${winnerName} WIN`, `三枚の図柄が揃いました！`,target);
+          gameOver = true;
+          return;
+        }
+
+        if (isReachState(field)) {
+          triggerReachCutin();
+          //ティラノスクリプトの演出
+          if(!isPlayer){
+            TYRANO.kag.ftag.startTag("jump",{target:"*gamecallreach"});
+          }
+        }
+
+        endTurn();
+      });
+
       return true;
+    }
+
+    function highlightSlot(slotIndex, isPlayer, callback) {
+      const slots = document.querySelectorAll('#field-slots .card');
+      const targetSlot = slots[slotIndex];
+
+      if (!targetSlot) {
+        callback();
+        return;
+      }
+
+      const highlightClass = isPlayer ? 'highlight-player' : 'highlight-cpu';
+      targetSlot.classList.add(highlightClass);
+
+      setTimeout(() => {
+        targetSlot.classList.remove(highlightClass);
+        callback();
+      }, 800);
     }
 
     function triggerReachCutin() {
@@ -275,7 +352,7 @@ function initGame() {
       }
 
       currentPlayer = currentPlayer === 1 ? 2 : 1;
-      const pName = (currentPlayer === cpuPlayer) ? "CPU" : `P${currentPlayer}`;
+      const pName = (currentPlayer === cpuPlayer) ? "みなみ" : "ああああ";
       setMessage(`${pName} のターンです`);
       render();
 
@@ -285,7 +362,7 @@ function initGame() {
     function checkCpuTurn() {
       if (!gameOver && currentPlayer === cpuPlayer) {
         isCpuThinking = true;
-        setMessage("CPUが思考中...");
+        setMessage("みなみ考え中…");
         render();
         setTimeout(playCpuTurn, 600);
       }
@@ -368,7 +445,7 @@ function initGame() {
 
     function playCpuTurn() {
       if (gameOver) {
-        isCpuThinking = false;
+        isActionInProgress = false;
         return;
       }
 
@@ -376,109 +453,14 @@ function initGame() {
 
       if (bestMove) {
         if (bestMove.type === 'SKIP') {
-        // 1. 手札からSを削除して墓地へ移動
-	      hands[cpuPlayer].splice(bestMove.handIndex, 1);
-	      graveyard.push('S');
-	      selectedHandIndex = null;
-	      setMessage("CPU は スキップ(S) を出しました");
-	      // 2. 中央スロット（インデックス1）に一時的にスキップ演出を表示してターン終了
-	      animateCpuSkip(() => {
-	        isCpuThinking = false;
-	        endTurn();
-	      });
-      } else if (bestMove.type === 'PLAY') {
-          const success = executeMoveWithoutEndTurn(bestMove.handIndex, bestMove.slotIndex);
-          if (success) {
-            highlightCpuSlot(bestMove.slotIndex, () => {
-              isCpuThinking = false;
-              afterMoveExecuted();
-            });
-          } else {
-            isCpuThinking = false;
-          }
+          executeSkipMove(bestMove.handIndex, false);
+        } else if (bestMove.type === 'PLAY') {
+          executeMove(bestMove.handIndex, bestMove.slotIndex);
         }
- 
       } else {
-        isCpuThinking = false;
+        isActionInProgress = false;
         endTurn();
       }
-    }
-
-    function executeMoveWithoutEndTurn(handIndex, slotIndex) {
-      const playedCard = hands[currentPlayer][handIndex];
-      const targetCard = field[slotIndex];
-
-      if (targetCard !== null && playedCard !== '☆' && playedCard === targetCard) {
-        return false;
-      }
-
-      hands[currentPlayer].splice(handIndex, 1);
-      if (targetCard !== null) {
-        graveyard.push(targetCard);
-      }
-      field[slotIndex] = playedCard;
-      selectedHandIndex = null;
-
-      render();
-      return true;
-    }
-
-    function afterMoveExecuted() {
-      if (checkWin(field)) {
-        render();
-        const winnerName = (currentPlayer === cpuPlayer) ? "CPU" : `PLAYER ${currentPlayer}`;
-        showEndGame(`${winnerName} WIN`, `三枚の図柄が揃いました！ ${winnerName} の勝利`,"*gamecpuwin");
-        gameOver = true;
-        return;
-      }
-
-      if (isReachState(field)) {
-        triggerReachCutin();
-      }
-
-      endTurn();
-    }
-
-    function highlightCpuSlot(slotIndex, callback) {
-      const slots = document.querySelectorAll('#field-slots .card');
-      const targetSlot = slots[slotIndex];
-
-      if (!targetSlot) {
-        callback();
-        return;
-      }
-
-      targetSlot.classList.add('cpu-highlight');
-
-      setTimeout(() => {
-        targetSlot.classList.remove('cpu-highlight');
-        callback();
-      }, 1050);
-    }
-
-    function animateCpuSkip(callback) {
-  	const slots = document.querySelectorAll('#field-slots .card');
-  	const targetSlot = slots[1]; // 中央のスロット（インデックス 1）
-
-  	if (!targetSlot) {
-    		callback();
-    		return;
-  	}
-
-  	// 元のテキスト（'+' や 図柄）を保持
-  	const originalText = targetSlot.textContent;
-  	const originalClass = targetSlot.className;
-
- 	// 中央スロットに一時的に 'S' を表示し、ハイライトクラスを付与
-  	targetSlot.textContent = 'S';
-  	targetSlot.className = 'card field-card cpu-highlight';
-
-  	// アニメーション完了（800ms）後に消去して画面再描画＆コールバック実行
-  	setTimeout(() => {
-    		targetSlot.textContent = originalText;
-    		targetSlot.className = originalClass;
-    		callback();
-  	}, 800);
     }
 
     function setMessage(msg) {
@@ -496,12 +478,12 @@ function initGame() {
 
     function render() {
       const badge = document.getElementById('turn-badge');
-      const pName = (currentPlayer === cpuPlayer) ? "CPU" : `P${currentPlayer}`;
+      const pName = (currentPlayer === cpuPlayer) ? "みなみ" : "ああああ";
       badge.textContent = `${pName} TURN`;
 
       document.getElementById('deck-count').textContent = deck.length;
 
-      const handLabel = (currentPlayer === cpuPlayer) ? "CPU HAND" : `PLAYER ${currentPlayer} HAND`;
+      const handLabel = (currentPlayer === cpuPlayer) ? "みなみ HAND" : "ああああ HAND";
       document.getElementById('hand-label').textContent = handLabel;
 
       // 場の描画

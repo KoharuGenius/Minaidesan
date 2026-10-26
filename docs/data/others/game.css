@@ -228,7 +228,7 @@
     }
 
     /* insertCoin用 */
-    .insertcoin {
+    .gamemenu {
       position: absolute;
       top: 0;
       left: 0;
@@ -244,11 +244,11 @@
       z-index: 10;
     }
 
-    .insertcoin.hidden {
+    .gamemenu.hidden {
       display: none;
     }
 
-    .insertcoin-title {
+    .gamemenu-title {
       font-size: 24px;
       font-weight: 900;
       color:#f8f8f8;
@@ -376,35 +376,35 @@
     }
 
     /* CPUが置いた位置を強調するアニメーション */
-    .card.cpu-highlight {
-      position: relative;
-  	  /* アニメーション用のCSS変数を初期化 */
-  	  --border-angle: 0deg;
-  	  /* conic-gradient で 3px 相当の点（扇形）を作成し、border-image で枠線に適用 */
-  	  border: 2px solid transparent !important;
-  	  background-image: 
-    	linear-gradient(#ffffff, #ffffff), 
-    	conic-gradient(from var(--border-angle), #111111 0deg 15deg, transparent 15deg 360deg);
-  	  background-origin: border-box;
-  	  background-clip: padding-box, border-box;
-  	  animation: rotateDot 0.8s linear 1;
+    .card.highlight-player {
+      background-image: 
+        linear-gradient(#ffffff, #ffffff), 
+        conic-gradient(from var(--border-angle, 0deg), #111111 0deg 25deg, transparent 25deg 360deg);
+      animation: rotateDot 0.8s linear 1;
     }
 
-    /* @property を使って角度変数 (--border-angle) をアニメーション補間できるように定義 */
+    .card.highlight-cpu {
+      background-image: 
+        linear-gradient(#ffffff, #ffffff), 
+        conic-gradient(from var(--border-angle, 0deg), #e53e3e 0deg 25deg, transparent 25deg 360deg);
+      animation: rotateDot 0.8s linear 1;
+    }
+
     @property --border-angle {
-    	syntax: '<angle>';
-    	initial-value: 0deg;
-    	inherits: false;
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    
+    @keyframes rotateDot {
+      0% {
+        --border-angle: 0deg;
+      }
+      100% {
+        --border-angle: 360deg;
+      }
     }
 
-    @keyframes rotateDot {
-  	0% {
-	    --border-angle: 0deg;
-  	}
-  	100% {
-    	--border-angle: 360deg;
-  	}
-    }
 
     /* noise 外枠（幅400px, 高さ550px） */
     .noise-container {
