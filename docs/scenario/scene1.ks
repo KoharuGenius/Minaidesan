@@ -31,19 +31,13 @@
 ;
 ;なまえをいれてください【ああああ】[OK]
 ;
-@eval exp="disp_insertcoin('なまえをいれてください：【ああああ】');"
-;@layopt layer="1" visible="true"
-
+@eval exp="disp_gamemenu('なまえをいれてください：【ああああ】');"
+[glink color="btn_07_white" text="OK" width=100 target="*enter_game" x=260 y=320 size=20]
 名前？[r]
 「OK」ボタンしか無いぞ？
-
-[glink color="btn_07_white" text="OK" width=100 target="*enter_game" x=260 y=320 size=20]
-
 [s]
 
 *enter_game
-;@layopt layer="1" visible="false"
-;@chara_show name="minami"
 @chara_show_minami
 #みなみ
 [dekamoji]よ…ようこそ！ああああ君！[resetfont][p]
@@ -78,6 +72,7 @@
 ;SE
 ;@playse storage=""
 @chara_hide_minami
+@eval exp="disp_insertcoin('');"
 
 #
 [dekamoji]おいっ！[resetfont][p]
@@ -103,15 +98,15 @@
 ……………[p]
 
 #みなみ
-【台本】にそう書いてあるの[p]
+【シナリオ】にそう書いてあるの[p]
 
 #
-【台本】…[p]
+へぇ【シナリオ】…[p]
 
 俺が勝負に勝ったらどうなるの？[p]
 
 #みなみ
-ええっと台本には……[p]
+ええっと【シナリオ】には……[p]
 
 #みなみ
 ……………！！[p]
@@ -121,6 +116,7 @@
 無理無理無理無理！！[p]
 
 @chara_hide_minami
+@eval exp="disp_insertcoin('');"
 
 #
 [dekamoji]おいっ！[resetfont][p]
@@ -133,7 +129,7 @@
 #みなみ
 それでは、衣装を購入してください[p]
 
-#俺
+#
 それは勝負に関係あるのか！[p]
 ……………っていうかさ、[p]
 皆井出さん、今何着てるの？[p]
@@ -143,17 +139,59 @@
 @quake count=3 time="800" vmax=120 wait=false
 [dekamoji]いいから、買って！[resetfont]
 
+#
+わかったわかった…[p]
 
+[choice text="でんせつのよろい　10G" target="*buycloth"]
+[choice text="ぼうけんふく　30G" target="*buycloth"]
+[choice text="あぶないみずぎ 10000G" target="*buycloth"]
 
+どうして布地が少ない方が高いんだよ？
 [s]
 
+*buycloth
+;NGブザー
+;@playse
+[cm]
+@chara_hide_minami
+@eval exp="disp_gamemenu('鋭意制作中につき<br>衣装は実装されていません');"
+@wait time=1000
+#
+なんかおかしくないか…このゲーム[p]
+
+@eval exp="disp_gamemenu('でも続けたいですよね？');"
+@wait time=1000
+なん…だと…[p]
+
+@eval exp="disp_insertcoin('X99');"
+
+;コイン投入SE
+;@playse storage=".mp3"
+[dekamoji]うおおおおおおお！！[resetfont][p]
+チャリンチャリンチャリンチャリン[p]
+チャリンチャリンチャリン……[p]
+
+@chara_show_minami
+#みなみ
+やだぁ…[p]
+もう、見ないでぇ…[p]
+
+#
+[dekamoji]さあ、デュエルしようぜ！[resetfont][p]
+
+; 勝利数初期化
+[eval exp="f.pwin=0;"]
+
+*beforegame
+[choice text="ルールを確認する" target="*explain_rule"]
+[choice text="すぐ勝負する" target="*gamestart" storage="game.ks"]
+[s]
+
+;ルール解説
+*explain_rule
 
 
-
-
-
-
-
+@jump target="*beforegame"
 
 
 

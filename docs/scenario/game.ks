@@ -1,5 +1,3 @@
-*gamestart
-
 [cm]
 [clearfix]
 [start_keyconfig]
@@ -11,19 +9,19 @@
 
 @layopt layer="message0" visible="true"
 
-@chara_show_minami
-
-@eval exp="f.gamebusy = false"
 @eval exp="disp_gameboard();"
-
 @layopt layer="1" visible="true"
 
+@chara_show_minami
+
+*gamestart
+@eval exp="f.gamebusy = false"
 #みなみ
 さあ、はじめましょう
 *initgame
 ;[cm]
 [iscript]
-disp_insertcoin('Ready?');
+disp_menufloating("READY?");
 disp_button();
 [endscript]
 *resumegame
@@ -32,43 +30,62 @@ disp_button();
 ;ゲーム中ロード時
 *gameload
 @eval exp="disp_insertcoin('');"
+[cm]
 #
 あれ？[p]
 
 #みなみ
-対戦中のゲームはリセットされるの
+対戦中のゲームはリセットされるの[p]
 
 #
 ロードしたときも百円入れるのかよ…[p]
-
-チャリン。[p]
+[charin]
 
 #みなみ
 じゃあ再開ね！
 @jump target="*initgame"
 
-*gamecpuwin
-[cm]
-わーい勝ったー[p]
-@jump target="*gameend"
 
+; プレイヤー勝利
 *gameplayerwin
 [cm]
+#
+[dekamoji]おっしゃあ！[resetfont][p]
+
+#みなみ
 あーあ負けちゃった…[p]
 @jump target="*gameend"
 
+
+; プレイヤー負け
+*gamecpuwin
+[cm]
+#みなみ
+わーい勝ったー[p]
+@jump target="*gameend"
+
+; 引き分け
 *gamedraw
 [cm]
+#みなみ
 引き分けだね[p]
 @jump target="*gameend"
 
+; ゲーム終了時共通処理
+; 次のゲームへ
 *gameend
 次のゲームを始めるよ
-[iscript]
-disp_insertcoin('');
-document.getElementById('insertcoin').classList.remove('hidden');
-[endscript]
 @jump target="*initgame"
+
+;対戦中リアクション
+*gamecallreach
+[cm]
+#みなみ
+リーチ！これはどうかな？
+@jump target="*resumegame"
+
+
+
 [s]
 
 

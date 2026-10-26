@@ -51,14 +51,16 @@
 [endmacro]
 
 [macro name="chara_hide_minami"]
-@chara_hide name="minami" time=100
-@eval exp="disp_noise();"
-@eval exp="disp_insertcoin('');"
+@call target="sub_chara_hide_minami" storage="first.ks"
 [endmacro]
 
 [macro name="chara_show_minami"]
-@eval exp="$('.noise-container').remove();"
-@chara_show name="minami" left=820 width=400 height=720 time=500
+@call target="sub_chara_show_minami" storage="first.ks"
+[endmacro]
+
+[macro name="charin"]
+;@playse storage=".mp3"
+チャリン。[p]
 [endmacro]
 
 ;メッセージボックスは非表示
@@ -71,3 +73,14 @@
 @jump storage="title.ks"
 
 [s]
+
+*sub_chara_show_minami
+@eval exp="disp_menufloating('PLAYING...');"
+@eval exp="$('.noise-container').remove();"
+@chara_show name="minami" left=820 width=400 height=720 time=500
+[return]
+
+*sub_chara_hide_minami
+@chara_hide name="minami" time=100
+@eval exp="disp_noise();"
+[return]
