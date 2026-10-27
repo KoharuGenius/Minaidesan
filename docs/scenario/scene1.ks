@@ -146,7 +146,7 @@
 [choice text="ぼうけんふく　30G" target="*buycloth"]
 [choice text="あぶないみずぎ 10000G" target="*buycloth"]
 
-どうして布地が少ない方が高いんだよ？
+どうして装備が薄い方が高いんだよ？
 [s]
 
 *buycloth
@@ -154,7 +154,7 @@
 ;@playse
 [cm]
 @chara_hide_minami
-@eval exp="disp_gamemenu('鋭意制作中につき<br>衣装は実装されていません');"
+@eval exp="disp_gamemenu('鋭意制作中につき<br/>衣装は実装されていません');"
 @wait time=1000
 #
 なんかおかしくないか…このゲーム[p]
@@ -163,7 +163,7 @@
 @wait time=1000
 なん…だと…[p]
 
-@eval exp="disp_insertcoin('X99');"
+@eval exp="disp_insertcoin(' X99');"
 
 ;コイン投入SE
 ;@playse storage=".mp3"
@@ -173,14 +173,22 @@
 
 @chara_show_minami
 #みなみ
-やだぁ…[p]
-もう、見ないでぇ…[p]
+ひどい…[p]
+もうヤダよ…こんなの…[p]
 
 #
-[dekamoji]さあ、デュエルしようぜ！[resetfont][p]
+衣装買っても、俺が勝てばこうなる【シナリオ】だろうからな！[p]
+さて、ここからどうなるかな？[p]
+
+#みなみ
+[dekamoji]見ないで…[resetfont][p]
+
+#
+[dekamoji]デュエルしようぜ！[resetfont][p]
 
 ; 勝利数初期化
 [eval exp="f.pwin=0;"]
+[eval exp="f.plose=0;"]
 
 *beforegame
 [choice text="ルールを確認する" target="*explain_rule"]
