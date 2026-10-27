@@ -376,6 +376,13 @@
     }
 
     /* CPUが置いた位置を強調するアニメーション */
+    .card.highlight-player, .card.highlight-cpu {
+      position: relative;
+      border: 2px solid transparent !important;
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+    }
+
     .card.highlight-player {
       background-image: 
         linear-gradient(#ffffff, #ffffff), 

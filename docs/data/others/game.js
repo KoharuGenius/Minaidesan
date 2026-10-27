@@ -106,12 +106,12 @@ let selectedHandIndex = null;
 let gameOver = false;
     
 const cpuPlayer = 2; // CPUは常にP2
-let isCpuThinking = false;
+let isActionInProgress = false;
 
 function initGame() {
   TYRANO.kag.stat.f.gamebusy = true;
   gameOver = false;
-  isCpuThinking = false;
+  isActionInProgress = false;
   graveyard = [];
   selectedHandIndex = null;
   document.getElementById('gamemenu').classList.add('hidden');
@@ -259,7 +259,7 @@ function initGame() {
         if (checkWin(field)) {
           render();
           const winnerName = isPlayer ? "ああああ" : "みなみ";
-          const target = (winnerName=="PLAYER")? "*gameplayerwin":"*gamecpuwin";
+          const target = (winnerName=="ああああ")? "*gameplayerwin":"*gamecpuwin";
           showEndGame(`${winnerName} WIN`, `三枚の図柄が揃いました！`,target);
           gameOver = true;
           return;
@@ -361,7 +361,7 @@ function initGame() {
 
     function checkCpuTurn() {
       if (!gameOver && currentPlayer === cpuPlayer) {
-        isCpuThinking = true;
+        isActionInProgress = true;
         setMessage("みなみ考え中…");
         render();
         setTimeout(playCpuTurn, 600);
