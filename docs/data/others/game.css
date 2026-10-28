@@ -472,3 +472,174 @@
       75%  { transform: translate(-2px, -1px); background-position: -54px 18px, 12px -36px; }
       100% { transform: translate(0, 0); background-position: 0 0, 0 0; }
     }
+
+/* Custom Css */
+.iscript-rainbow-box {
+  position: absolute;
+  top:290px;
+  left:800px;
+  width: 360px;
+  height: 180px;
+  //padding: 10px; /* 3pxのライン */
+  border: 10px solid transparent;
+  border-radius: 8px;
+  /* 枠線そのものにグラデーションを適用 */
+  border-image: linear-gradient(
+    calc(var(--hue, 0) * 1deg),
+    hsl(var(--hue, 0), 100%, 50%),
+    hsl(calc(var(--hue, 0) + 60), 100%, 50%),
+    hsl(calc(var(--hue, 0) + 120), 100%, 50%),
+    hsl(calc(var(--hue, 0) + 180), 100%, 50%),
+    hsl(calc(var(--hue, 0) + 240), 100%, 50%),
+    hsl(calc(var(--hue, 0) + 300), 100%, 50%)
+  ) 1;
+
+  /* 背景は完全透明 */
+  background: transparent;
+}
+
+.rgb-border-box {
+  position: absolute;
+  top:290px;
+  left:800px;
+  width: 360px;
+  height: 180px;
+  
+  /* 背景を完全透過 */
+  background: transparent;
+  
+  /* 10pxの枠線を指定 */
+  border: 10px solid transparent;
+  
+  /* 枠線に虹色グラデーションを適用 */
+  border-image: linear-gradient(
+    135deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #8b00ff
+  ) 1;
+
+  /* 色相変化と明滅のアニメーション */
+  animation: 
+    rgb-shift 3s linear infinite,
+    rgb-pulse 1.2s ease-in-out infinite alternate;
+}
+
+/* 虹色を滑らかに変化させる */
+@keyframes rgb-shift {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* 枠線の発光・透明度を明滅させる */
+@keyframes rgb-pulse {
+  0% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+    /* 外側へ光が漏れ出すネオン効果 */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+  }
+}
+
+.rainbow-box-wrapper {
+  position: relative;
+  width: 300px;
+  height: 150px;
+}
+
+.rainbow-box {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  overflow: hidden;
+
+  /* clip-pathで10pxの枠線だけを残し、内側をくり抜き */
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+    10px 10px,
+    10px calc(100% - 10px),
+    calc(100% - 10px) calc(100% - 10px),
+    calc(100% - 10px) 10px,
+    10px 10px
+  );
+
+      /* 枠線の明滅アニメーション */
+  animation: pulse-opacity 2.5s ease-in-out infinite alternate;
+}
+
+  /* 虹色グラデーション要素 */
+.rainbow-box::before {
+  content: '';
+  position: absolute;
+  /* 300x150pxの要素の中央に配置するため50%指定 */
+  top: 50%;
+  left: 50%;
+  /* 300x150の対角線（約335px）を十分にカバーする十分な大きさの正方形 */
+  width: 500px;
+  height: 500px;
+  background: conic-gradient(
+     #ff0000,
+      #ff7f00,
+        #ffff00,
+        #00ff00,
+        #00ffff,
+        #0000ff,
+        #8b00ff,
+        #ff0000
+  );
+
+      /* アニメーション適用 */
+      animation: rotate-rainbow 3s linear infinite;
+      z-index: -1;
+}
+
+/* 枠内のコンテンツ */
+.content {
+  position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-family: sans-serif;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* 回転軸を完全中央（translate(-50%, -50%)）に固定したまま回転 */
+    @keyframes rotate-rainbow {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* 明滅アニメーション */
+    @keyframes pulse-opacity {
+      0% {
+        opacity: 0.3;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+      }
+      50% {
+        opacity: 0.7;
+      }
+      100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+      }
+    }

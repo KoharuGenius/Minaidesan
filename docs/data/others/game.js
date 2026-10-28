@@ -548,5 +548,12 @@ function disp_noise(){
   `;
   $(".noise-container").remove();
   $(".0_fore").append(strhtml);
+}
 
+function disp_gamingrect(){
+  const strhtml=`
+  <div id="gamingrect" class="iscript-rainbow-box"></div>
+  `;
+  $("#gamingrect").remove();
+  $(".0_fore").append(strhtml);
 }
