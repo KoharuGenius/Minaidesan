@@ -13,6 +13,7 @@
 @layopt layer="1" visible="true"
 
 @chara_show_minami
+@eval exp="disp_gamingrect();"
 
 ; 勝利数初期化
 [eval exp="f.pwin=0;"]
