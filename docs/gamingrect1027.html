@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Gaming Rainbow Border - Axis Fixed</title>
+  <style>
+    body {
+      /* 背景透過確認用の画像 */
+      background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .rainbow-box-wrapper {
+      position: relative;
+      width: 300px;
+      height: 150px;
+    }
+
+    .rainbow-box {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      overflow: hidden;
+
+      /* clip-pathで10pxの枠線だけを残し、内側をくり抜き */
+      clip-path: polygon(
+        0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+        10px 10px,
+        10px calc(100% - 10px),
+        calc(100% - 10px) calc(100% - 10px),
+        calc(100% - 10px) 10px,
+        10px 10px
+      );
+
+      /* 枠線の明滅アニメーション */
+      animation: pulse-opacity 2.5s ease-in-out infinite alternate;
+    }
+
+    /* 虹色グラデーション要素 */
+    .rainbow-box::before {
+      content: '';
+      position: absolute;
+      /* 300x150pxの要素の中央に配置するため50%指定 */
+      top: 50%;
+      left: 50%;
+      /* 300x150の対角線（約335px）を十分にカバーする十分な大きさの正方形 */
+      width: 500px;
+      height: 500px;
+      background: conic-gradient(
+        #ff0000,
+        #ff7f00,
+        #ffff00,
+        #00ff00,
+        #00ffff,
+        #0000ff,
+        #8b00ff,
+        #ff0000
+      );
+
+      /* アニメーション適用 */
+      animation: rotate-rainbow 3s linear infinite;
+      z-index: -1;
+    }
+
+    /* 枠内のコンテンツ */
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-family: sans-serif;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* 回転軸を完全中央（translate(-50%, -50%)）に固定したまま回転 */
+    @keyframes rotate-rainbow {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* 明滅アニメーション */
+    @keyframes pulse-opacity {
+      0% {
+        opacity: 0.3;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+      }
+      50% {
+        opacity: 0.7;
+      }
+      100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="rainbow-box-wrapper">
+    <div class="rainbow-box"></div>
+    <div class="content">
+      背景画像が透けて見えます
+    </div>
+  </div>
+
+</body>
+</html>
