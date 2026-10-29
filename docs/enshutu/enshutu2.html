@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>box-shadow 粒子アニメーション</title>
+  <style>
+    :root {
+      --bg-color: #f7f6f2; /* オフホワイト */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--bg-color);
+      /* 中央をほんのり明るくしたグラデーション背景 */
+      background: radial-gradient(circle at 50% 50%, #faf9f6 0%, #edebe6 100%);
+    }
+
+    /* --------------------------------------------------
+     * 粒子レイヤー（3つの要素のみで構成）
+     * -------------------------------------------------- */
+    .particle-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* 粒子の基本スタイル（共通の1粒） */
+    .particle-group {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(140, 140, 145, 0.45);
+      will-change: transform, opacity;
+    }
+
+    /* --------------------------------------------------
+     * box-shadow による粒子の増殖定義
+     * -------------------------------------------------- */
+
+    /* グループ 1：標準的なサイズの粒子群（8個分） */
+    .group-1 {
+      box-shadow:
+        12vw -8vh 0 0 rgba(140, 140, 145, 0.4),
+        28vw -25vh 1px 0 rgba(160, 160, 165, 0.5),
+        45vw -5vh 0 0 rgba(130, 130, 135, 0.35),
+        58vw -35vh 1px 0 rgba(150, 150, 155, 0.45),
+        72vw -18vh 0 0 rgba(140, 140, 145, 0.4),
+        85vw -42vh 2px 0 rgba(160, 160, 165, 0.3),
+        93vw -12vh 0 0 rgba(130, 130, 135, 0.45),
+        38vw -55vh 1px 0 rgba(150, 150, 155, 0.35);
+
+      animation: floatUp1 14s linear infinite;
+      animation-delay: 0s;
+    }
+
+    /* グループ 2：少し小さめで奥にあるような粒子群（8個分） */
+    .group-2 {
+      width: 4px;
+      height: 4px;
+      background: rgba(150, 150, 155, 0.35);
+      box-shadow:
+        8vw -15vh 0 0 rgba(150, 150, 155, 0.3),
+        22vw -48vh 1px 0 rgba(130, 130, 135, 0.4),
+        35vw -28vh 0 0 rgba(160, 160, 165, 0.35),
+        52vw -62vh 0 0 rgba(140, 140, 145, 0.25),
+        65vw -10vh 1px 0 rgba(150, 150, 155, 0.4),
+        78vw -52vh 0 0 rgba(130, 130, 135, 0.3),
+        88vw -32vh 0 0 rgba(160, 160, 165, 0.35),
+        18vw -70vh 1px 0 rgba(140, 140, 145, 0.3);
+
+      animation: floatUp2 18s linear infinite;
+      animation-delay: -6s; /* 最初から途中まで上がっている状態にする */
+    }
+
+    /* グループ 3：手前にある大きめでボケ感のある粒子群（6個分） */
+    .group-3 {
+      width: 9px;
+      height: 9px;
+      background: rgba(130, 130, 135, 0.25);
+      box-shadow:
+        15vw -38vh 2px 0 rgba(140, 140, 145, 0.25),
+        32vw -12vh 3px 0 rgba(150, 150, 155, 0.2),
+        50vw -45vh 2px 0 rgba(130, 130, 135, 0.3),
+        68vw -22vh 3px 0 rgba(160, 160, 165, 0.2),
+        82vw -58vh 2px 0 rgba(140, 140, 145, 0.25),
+        42vw -78vh 3px 0 rgba(150, 150, 155, 0.2);
+
+      animation: floatUp3 22s linear infinite;
+      animation-delay: -11s;
+    }
+
+    /* --------------------------------------------------
+     * キーフレーム（それぞれ揺れ方と移動スピードを変える）
+     * -------------------------------------------------- */
+    @keyframes floatUp1 {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% {
+        transform: translateY(-115vh) translateX(25px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes floatUp2 {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      15% { opacity: 0.8; }
+      85% { opacity: 0.8; }
+      100% {
+        transform: translateY(-115vh) translateX(-20px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes floatUp3 {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      20% { opacity: 0.7; }
+      80% { opacity: 0.7; }
+      100% {
+        transform: translateY(-115vh) translateX(15px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HTML要素は実質3つのみ -->
+  <div class="particle-container">
+    <div class="particle-group group-1"></div>
+    <div class="particle-group group-2"></div>
+    <div class="particle-group group-3"></div>
+  </div>
+
+</body>
+</html>

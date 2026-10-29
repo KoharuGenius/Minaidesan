@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ピンクの紙吹雪背景演出</title>
+  <style>
+    :root {
+      --bg-color: #f7f6f2; /* オフホワイト */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background-color: #e5e3dc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* --------------------------------------------------
+ * 1. 演出を閉じ込める枠（ゲーム画面）
+ * -------------------------------------------------- */
+.game-window {
+  position: relative;
+  width: 400px;
+  height: 680px;
+  overflow: hidden; /* ★枠外にはみ出る背景をカット */
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  background-color: var(--bg-color);
+}
+
+/* --------------------------------------------------
+ * 2. ピンクの紙吹雪背景レイヤー（のりしろを追加）
+ * -------------------------------------------------- */
+.confetti-bg {
+  position: absolute;
+
+  /* ★上下左右に20pxずつ広げて配置（揺れても背景の端が見えないようにする） */
+  top: -20px;
+  bottom: -20px;
+  left: -20px;
+  right: -20px;
+
+  pointer-events: none;
+
+  background-image: 
+    /* 層 A : メインの濃いめピンク紙片 */
+    radial-gradient(ellipse 3px 6px at 18% 15%, rgba(240, 120, 160, 0.75) 98%, rgba(240, 120, 160, 0) 100%),
+    radial-gradient(ellipse 4px 7px at 52% 65%, rgba(235, 110, 150, 0.7)  98%, rgba(235, 110, 150, 0) 100%),
+    radial-gradient(ellipse 3px 5px at 82% 25%, rgba(245, 130, 170, 0.8)  98%, rgba(245, 130, 170, 0) 100%),
+
+    /* 層 B : 淡い桜色の小さな紙片 */
+    radial-gradient(ellipse 2px 5px at 30% 80%, rgba(255, 180, 200, 0.8)  98%, rgba(255, 180, 200, 0) 100%),
+    radial-gradient(ellipse 3px 6px at 68% 35%, rgba(255, 170, 195, 0.75) 98%, rgba(255, 170, 195, 0) 100%),
+    radial-gradient(ellipse 2px 4px at 90% 85%, rgba(245, 160, 185, 0.8)  98%, rgba(245, 160, 185, 0) 100%),
+
+    /* 層 C : 手前の大きめでぼやけた紙片 */
+    radial-gradient(ellipse 5px 9px at 10% 50%, rgba(230, 100, 145, 0.4) 98%, rgba(230, 100, 145, 0) 100%),
+    radial-gradient(ellipse 6px 10px at 42% 10%, rgba(240, 120, 160, 0.35) 98%, rgba(240, 120, 160, 0) 100%),
+    radial-gradient(ellipse 5px 8px at 75% 70%, rgba(255, 150, 180, 0.4) 98%, rgba(255, 150, 180, 0) 100%),
+
+    /* ベース背景グラデーション */
+    radial-gradient(circle at 50% 50%, #faf9f6 0%, #edebe6 100%);
+
+  /* ★高さを枠(+40pxの余裕分)に合わせて 720px に指定 */
+  background-size: 100% 720px;
+  background-repeat: repeat-y;
+
+  will-change: background-position, transform;
+  animation: 
+    confettiFall 12s linear infinite,
+    confettiSway 4s ease-in-out infinite alternate;
+}
+
+/* --------------------------------------------------
+ * 3. アニメーション定義（720pxの高さに合わせてスクロール）
+ * -------------------------------------------------- */
+@keyframes confettiFall {
+  0% {
+    background-position: 
+      0 0, 0 0, 0 0,
+      0 0, 0 0, 0 0,
+      0 0, 0 0, 0 0,
+      0 0;
+  }
+  100% {
+    /* ★背景サイズ変更に合わせて 720px 下へ移動 */
+    background-position: 
+      0 720px, 0 720px, 0 720px,
+      0 720px, 0 720px, 0 720px,
+      0 720px, 0 720px, 0 720px,
+      0 0;
+  }
+}
+
+/* 揺れの指定（変形しても枠外の「のりしろ」があるため白地が見えなくなります） */
+@keyframes confettiSway {
+  0% {
+    transform: translateX(-10px) rotate(-1.5deg);
+  }
+  100% {
+    transform: translateX(10px) rotate(1.5deg);
+  }
+}
+
+    /* ダミーUI */
+    .game-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #55534c;
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-window">
+    <div class="confetti-bg"></div>
+    <div class="game-content">
+      キャラクター勝利演出
+    </div>
+  </div>
+
+</body>
+</html>

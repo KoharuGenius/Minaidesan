@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テーブルゲーム対戦背景演出デモ</title>
+  <style>
+    :root {
+      --bg-color: #f7f6f2; /* オフホワイト */
+      --particle-color: rgba(140, 140, 145, 0.4);
+      --confetti-color1: rgba(180, 180, 185, 0.7);
+      --confetti-color2: rgba(210, 210, 215, 0.8);
+      --confetti-color3: rgba(150, 150, 155, 0.6);
+      --gold-glow: rgba(220, 190, 120, 0.4);
+      --text-main: #33322f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      user-select: none;
+    }
+
+    /* --------------------------------------------------
+     * 1. ベース背景（オフホワイト＆テクスチャ）
+     * -------------------------------------------------- */
+    .game-container {
+      position: relative;
+      width: 400px;
+      height: 680px;
+      background: radial-gradient(circle at 50% 40%, #faf9f6 0%, #edebe6 100%);
+      transition: background 1.5s ease;
+    }
+
+    /* --------------------------------------------------
+     * 2. 対戦時：淡いグレーの浮遊粒子 (Particles)
+     * -------------------------------------------------- */
+    .particle-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .particle {
+      position: absolute;
+      bottom: -20px;
+      background-color: var(--particle-color);
+      border-radius: 50%;
+      will-change: transform, opacity;
+      animation: floatUp linear infinite;
+    }
+
+    /* 粒子のバリエーション (PureCSS) */
+    .particle:nth-child(1) { left: 10%; width: 6px; height: 6px; animation-duration: 9s; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 25%; width: 10px; height: 10px; animation-duration: 13s; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 40%; width: 5px; height: 5px; animation-duration: 8s; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 55%; width: 12px; height: 12px; animation-duration: 15s; animation-delay: 1s; }
+    .particle:nth-child(5) { left: 70%; width: 7px; height: 7px; animation-duration: 10s; animation-delay: 3s; }
+    .particle:nth-child(6) { left: 85%; width: 9px; height: 9px; animation-duration: 12s; animation-delay: 5s; }
+    .particle:nth-child(7) { left: 95%; width: 6px; height: 6px; animation-duration: 11s; animation-delay: 2.5s; }
+    .particle:nth-child(8) { left: 18%; width: 8px; height: 8px; animation-duration: 14s; animation-delay: 6s; }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      80% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-105vh) translateX(30px);
+        opacity: 0;
+      }
+    }
+
+    /* --------------------------------------------------
+     * 3. 敵勝利（味方敗北）：淡いグレーの紙吹雪 (Confetti)
+     * -------------------------------------------------- */
+    .confetti-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .state-enemy-win .confetti-layer {
+      opacity: 1;
+    }
+
+    .state-enemy-win .particle-layer {
+      opacity: 0.2; /* 粒子は薄く残すか非表示 */
+    }
+
+    .confetti {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 14px;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .state-enemy-win .confetti {
+      animation: confettiFall linear infinite;
+    }
+
+    /* 紙吹雪のバリエーション */
+    .confetti:nth-child(1) { left: 8%; background-color: var(--confetti-color1); animation-duration: 4.5s; animation-delay: 0s; }
+    .confetti:nth-child(2) { left: 20%; background-color: var(--confetti-color2); animation-duration: 5.5s; animation-delay: 0.8s; width: 8px; height: 12px; }
+    .confetti:nth-child(3) { left: 35%; background-color: var(--confetti-color3); animation-duration: 4.0s; animation-delay: 0.3s; }
+    .confetti:nth-child(4) { left: 50%; background-color: var(--confetti-color1); animation-duration: 6.0s; animation-delay: 1.2s; width: 12px; height: 16px; }
+    .confetti:nth-child(5) { left: 65%; background-color: var(--confetti-color2); animation-duration: 4.8s; animation-delay: 0.5s; }
+    .confetti:nth-child(6) { left: 78%; background-color: var(--confetti-color3); animation-duration: 5.2s; animation-delay: 1.5s; }
+    .confetti:nth-child(7) { left: 90%; background-color: var(--confetti-color1); animation-duration: 4.2s; animation-delay: 0.2s; }
+    .confetti:nth-child(8) { left: 28%; background-color: var(--confetti-color2); animation-duration: 5.8s; animation-delay: 1.8s; }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(105vh) rotateX(720deg) rotateY(360deg) rotateZ(180deg);
+        opacity: 0;
+      }
+    }
+
+    /* --------------------------------------------------
+     * 4. プレイヤー勝利（敵敗北）：後光（ブライト・レイ）演出
+     * -------------------------------------------------- */
+    .victory-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .state-player-win .victory-layer {
+      opacity: 1;
+    }
+
+    .state-player-win .particle-layer {
+      opacity: 0.3;
+    }
+
+    /* 中央から広がる淡い金の光輪 */
+    .sunburst-halo {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--gold-glow) 0%, rgba(247, 246, 242, 0) 70%);
+      transform: scale(0.8);
+      will-change: transform, opacity;
+    }
+
+    .state-player-win .sunburst-halo {
+      animation: haloPulse 6s ease-in-out infinite alternate;
+    }
+
+    /* ゆっくり回転する多角形の光線 */
+    .sunburst-rays {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg 20deg,
+        rgba(220, 190, 120, 0.12) 20deg 40deg,
+        transparent 40deg 70deg,
+        rgba(220, 190, 120, 0.1) 70deg 90deg,
+        transparent 90deg 130deg,
+        rgba(220, 190, 120, 0.15) 130deg 150deg,
+        transparent 150deg 200deg,
+        rgba(220, 190, 120, 0.1) 200deg 230deg,
+        transparent 230deg 280deg,
+        rgba(220, 190, 120, 0.12) 280deg 310deg,
+        transparent 310deg 360deg
+      );
+      border-radius: 50%;
+      will-change: transform;
+    }
+
+    .state-player-win .sunburst-rays {
+      animation: rotateRays 40s linear infinite;
+    }
+
+    @keyframes haloPulse {
+      0% { transform: scale(0.85); opacity: 0.6; }
+      100% { transform: scale(1.15); opacity: 0.9; }
+    }
+
+    @keyframes rotateRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* --------------------------------------------------
+     * 5. モック画面用UI＆会話ウィンドウ
+     * -------------------------------------------------- */
+    .stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 20px;
+      z-index: 10;
+    }
+
+    .character-area {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .character-avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background-color: #e2e0d8;
+      border: 4px solid #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+      margin: 0 auto 12px;
+      transition: transform 0.5s ease;
+    }
+
+    .state-player-win .character-avatar {
+      transform: translateY(6px); /* 負けて少しうつむく */
+    }
+
+    .dialogue-box {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(220, 215, 205, 0.8);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      min-height: 90px;
+      transition: border-color 0.5s ease;
+    }
+
+    .state-player-win .dialogue-box {
+      border-color: rgba(210, 180, 110, 0.6); /* 会話枠もほんのりゴールド */
+    }
+
+    .speaker-name {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #88847d;
+      margin-bottom: 6px;
+    }
+
+    .dialogue-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #2c2b28;
+    }
+
+    /* デモ切り替え用コントローラー */
+    .controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      background: rgba(255,255,255,0.9);
+      padding: 6px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .btn {
+      border: none;
+      background: #f0eee8;
+      color: #555;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #e2ded4;
+    }
+
+    .btn.active {
+      background: #4a4843;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app" class="game-container">
+    <!-- デモ用状態切り替えボタン -->
+    <div class="controls">
+      <button class="btn active" onclick="setState('')">① 対戦中</button>
+      <button class="btn" onclick="setState('state-enemy-win')">② 敵勝利 (紙吹雪)</button>
+      <button class="btn" onclick="setState('state-player-win')">③ 敵敗北 (ブライト・レイ)</button>
+    </div>
+
+    <!-- 背景層：対戦中（淡いグレー粒子） -->
+    <div class="particle-layer">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+
+    <!-- 背景層：敵勝利（淡いグレー紙吹雪） -->
+    <div class="confetti-layer">
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+    </div>
+
+    <!-- 背景層：敵敗北／プレイヤー勝利（ブライト・レイ＆後光） -->
+    <div class="victory-layer">
+      <div class="sunburst-rays"></div>
+      <div class="sunburst-halo"></div>
+    </div>
+
+    <!-- モック画面（対戦相手＆会話） -->
+    <div class="stage">
+      <div class="character-area">
+        <div class="character-avatar">対戦キャラ</div>
+      </div>
+
+      <div class="dialogue-box">
+        <div id="speaker" class="speaker-name">対戦キャラクター</div>
+        <div id="dialogue" class="dialogue-text">「さあ、君の一手を見せてもらおうか。」</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setState(stateClass) {
+      const app = document.getElementById('app');
+      const speaker = document.getElementById('speaker');
+      const dialogue = document.getElementById('dialogue');
+      const buttons = document.querySelectorAll('.btn');
+
+      app.className = 'game-container ' + stateClass;
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      if (stateClass === '') {
+        buttons[0].classList.add('active');
+        speaker.textContent = '対戦キャラクター';
+        dialogue.textContent = '「さあ、君の一手を見せてもらおうか。」';
+      } else if (stateClass === 'state-enemy-win') {
+        buttons[1].classList.add('active');
+        speaker.textContent = '対戦キャラクター';
+        dialogue.textContent = '「私の勝ちだね。ふふ、良い勝負だったよ。」';
+      } else if (stateClass === 'state-player-win') {
+        buttons[2].classList.add('active');
+        speaker.textContent = '対戦キャラクター';
+        dialogue.textContent = '「見事な腕前だ……参ったよ。君の勝利だね。」';
+      }
+    }
+  </script>
+</body>
+</html>

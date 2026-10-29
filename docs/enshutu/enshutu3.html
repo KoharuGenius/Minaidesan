@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>枠内限定 Radial Gradient 粒子背景アニメーション</title>
+  <style>
+    :root {
+      --bg-color: #f7f6f2; /* オフホワイト */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 全体中央配置用 */
+    body {
+      width: 100vw;
+      height: 100vh;
+      background-color: #e5e3dc; /* 画面枠の外側 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* --------------------------------------------------
+     * 1. 演出を閉じ込める指定サイズの枠（ゲーム画面）
+     * -------------------------------------------------- */
+    .game-window {
+      position: relative; /* 子要素の絶対配置の基準 */
+      width: 400px;
+      height: 680px;
+      overflow: hidden;   /* 枠からはみ出る粒子をカット */
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      background-color: var(--bg-color);
+    }
+
+    /* --------------------------------------------------
+     * 2. 枠内いっぱいに広げる粒子背景レイヤー
+     * -------------------------------------------------- */
+    .particle-bg {
+      position: absolute;
+      inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; と同義 */
+      pointer-events: none;
+
+      /* 
+       * 複数の円形グラデーション（粒子）を重ね合わせて定義
+       * 位置（at X% Y%）は 400px x 680px の範囲内で分散
+       */
+      background-image: 
+        /* 層 A : 標準サイズの粒子群 */
+        radial-gradient(circle 4px at 15% 25%, rgba(140, 140, 145, 0.45) 99%, transparent 100%),
+        radial-gradient(circle 5px at 48% 70%, rgba(150, 150, 155, 0.4)  99%, transparent 100%),
+        radial-gradient(circle 3px at 78% 18%, rgba(130, 130, 135, 0.5)  99%, transparent 100%),
+        radial-gradient(circle 4px at 85% 62%, rgba(160, 160, 165, 0.35) 99%, transparent 100%),
+
+        /* 層 B : 小さめで遠くにある粒子群 */
+        radial-gradient(circle 2px at 28% 82%, rgba(150, 150, 155, 0.35) 99%, transparent 100%),
+        radial-gradient(circle 3px at 60% 38%, rgba(140, 140, 145, 0.3)  99%, transparent 100%),
+        radial-gradient(circle 2px at 90% 88%, rgba(130, 130, 135, 0.4)  99%, transparent 100%),
+
+        /* 層 C : 大きめで手前にあるボケ感のある粒子群 */
+        radial-gradient(circle 7px at 12% 60%, rgba(140, 140, 145, 0.25) 99%, transparent 100%),
+        radial-gradient(circle 6px at 35% 12%, rgba(160, 160, 165, 0.2)  99%, transparent 100%),
+        radial-gradient(circle 8px at 72% 80%, rgba(130, 130, 135, 0.25) 99%, transparent 100%),
+
+        /* 全体ベース背景グラデーション */
+        radial-gradient(circle at 50% 50%, #faf9f6 0%, #edebe6 100%);
+
+      /* 
+       * 高さを枠と同じ 680px に合わせることで1画面ループを成立させる
+       */
+      background-size: 100% 680px;
+      background-repeat: repeat-y;
+
+      will-change: background-position;
+      animation: bgFloatUp 16s linear infinite;
+    }
+
+    /* --------------------------------------------------
+     * 高さ 680px 分スクロールさせてシームレスループ
+     * -------------------------------------------------- */
+    @keyframes bgFloatUp {
+      0% {
+        background-position: 
+          0 0, 0 0, 0 0, 0 0,
+          0 0, 0 0, 0 0,
+          0 0, 0 0, 0 0,
+          0 0;
+      }
+      100% {
+        /* 高さと同じ -680px 分移動 */
+        background-position: 
+          0 -680px, 0 -680px, 0 -680px, 0 -680px,
+          0 -680px, 0 -680px, 0 -680px,
+          0 -680px, 0 -680px, 0 -680px,
+          0 0;
+      }
+    }
+
+    /* 参考用：枠内のダミーコンテンツ */
+    .game-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #55534c;
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 幅 400px x 高さ 680px の対戦画面枠 -->
+  <div class="game-window">
+    <div class="particle-bg"></div>
+    <div class="game-content">
+      対戦画面エリア (400 × 680)
+    </div>
+  </div>
+
+</body>
+</html>
