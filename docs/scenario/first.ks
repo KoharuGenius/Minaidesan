@@ -15,6 +15,8 @@
 [loadjs storage="game.js"]
 [loadcss file="./data/others/game.css"]
 
+@eval exp="appendCustomlayer();"
+
 ;for charactor
 [chara_new name="minami" storage="./chara/mnmnormal.png" jname="みなみ"]
 
@@ -39,7 +41,6 @@
 
 ;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
 [chara_config ptext="chara_name_area"]
-
 
 ;****Macro Define
 [macro name="choice"]
@@ -75,12 +76,20 @@
 [s]
 
 *sub_chara_show_minami
-@eval exp="disp_menufloating('PLAYING...');"
-@eval exp="$('.noise-container').remove();"
-@chara_show name="minami" left=820 width=400 height=720 time=500
+;@eval exp="disp_menufloating('PLAYING...');"
+;@eval exp="$('.noise-container').remove();"
+[iscript]
+disp_menufloating("PLAYING...");
+$('.noise-container').remove();
+disp_gamingrect();
+[endscript]
+@chara_show name="minami" left=820 top=20 width=400 height=680 time=100
 [return]
 
 *sub_chara_hide_minami
 @chara_hide name="minami" time=100
-@eval exp="disp_noise();"
+[iscript]
+$("#gamingrect").remove();
+disp_noise();
+[endscript]
 [return]

@@ -13,10 +13,10 @@
 @layopt layer="1" visible="true"
 
 @chara_show_minami
-@eval exp="disp_gamingrect();"
+
 
 ; 勝利数初期化
-[eval exp="f.pwin=0;"]
+[eval exp="f.pwin=2;"]
 [eval exp="f.plose=0;"]
 ;--- [E]For Debug
 
@@ -97,11 +97,11 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 皆井出さんって、そういうキャラだったんだ…[p]
 
 #みなみ
-【シナリオ】に書いてあるだけだから…っ！[p]
+【台本】に書いてあるだけだから…っ！[p]
 
 #
 よぉし[r]
-俺が勝っても【シナリオ】どおりにしてくれよ[p]
+俺が勝っても【台本】どおりにしてくれよ[p]
 
 #みなみ
 そ…それは…[p]
@@ -161,7 +161,7 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 *gamepwin1
 ;---
 #
-さあ、どんなお楽しみイベントを見せてくれるのかな♡[p]
+さぁて、どんなお楽しみイベントを見せてくれるのかな♡[p]
 
 #みなみ
 あのっ…[p]
@@ -173,7 +173,7 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 ああああ君と遊ぶの意外と楽しいかも！[p]
 
 #
-えっ…？[p]
+そうなの…？[p]
 っていうか、俺の名前は…[p]
 
 #みなみ
@@ -193,7 +193,8 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 @eval exp="disp_insertcoin('');"
 
 #
-あっ…もしかしたら、あの♡を埋めるとイベントが…[p]
+あっ…[p]
+でも、あの♡を埋めるとイベントが…[p]
 
 @jump target="*gamepwin_end"
 
@@ -209,7 +210,7 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 [dekamoji]私、ああああ君のこと…[resetfont][p]
 
 #
-ヨシ！ああああ君でもいいぞ[p]
+うんうん、ああああ君でもいいぞ[p]
 俺のことだな？[p]
 
 #みなみ
@@ -226,6 +227,7 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 @eval exp="disp_insertcoin('');"
 
 #
+アッー[p]
 そんなのありかよっ…[p]
 @jump target="*gamepwin_end"
 
@@ -247,10 +249,11 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 でも…今度は目を閉じていてほしいの[p]
 
 #
-そんなことしなくても同じじゃないのか？[p]
+そんなことしなくても【同じ】じゃないのか？[p]
 
 #みなみ
-だめぇ…！見ないで…[p]
+ちがうの！[r]
+とにかく見ないで…[p]
 
 #
 わかったわかった[p]
@@ -259,9 +262,9 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 いい？[r]
 ちゃんと閉じた？
 
-[choice text="閉じるわけない" taget="*gamepwin3_a"]
-[choice text="閉じるわけない" taget="*gamepwin3_a"]
-[choice text="閉じるわけない" taget="*gamepwin3_a"]
+[choice text="閉じるわけない" target="*gamepwin3_a"]
+[choice text="閉じるわけない" target="*gamepwin3_a"]
+[choice text="閉じるわけない" target="*gamepwin3_a"]
 [s]
 
 *gamepwin3_a
@@ -289,6 +292,10 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 #
 それだけ…？[p]
 
+#みなみ
+………[p]
+
+#
 あのさぁ[p]
 【好き】だったら、[r]
 ホラ、もっとやることが…[p]
@@ -301,15 +308,186 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 
 #
 おいっ！[p]
-COIN を INSERT するんじゃなくってな…[p]
+INSERT したいのは COIN じゃなくってな…[p]
 @jump target="*gamepwin_end"
 
 
+;---
+;4勝目
+*gamepwin4
+;---
+#
+ねえ、俺のこと好きなんだよね？[p]
+だったらさ…[p]
+
+#みなみ
+うん、もっと一緒にいたいな…[p]
+
+#
+だよね？[p]
+
+#みなみ
+…【台本】読んでるだけだから！[p]
+
+#
+俺もセリフを【聞く】だけじゃなくって…[p]
+もっと皆井出さんを…【見たい】[p]
+
+#みなみ
+見ないで…[p]
+
+;
+;@playse storage=""
+@eval exp="disp_gamemenu('イベントモードに入りました');"
+
+#
+おっ♡[p]
+どんなイベントかな～[p]
+
+#みなみ
+そんな…やめてっ！[r]
+押さないで！
+[choice text="ジャンプさせる" target="*gamepwin4_a"]
+見ないでぇ…
+[s]
+
+*gamepwin4_a
+#
+そんなこと言われても押しちゃうよ～ん♪[p]
+ポチっとな[p]
+@eval exp="f.jumpn=0;"
+
+*gamepwin4_a1
+[cm]
+ジャンプしてみろよ、おらっ！
+;@playse storage=""
+@quake count=1 vmax=150 time=1200
+@eval exp="f.jumpn++";
+#
+@wait time=1000
+[cm]
+………[p]
+画面ごとジャンプしなくてもいいんだけど…
+[choice text="ジャンプ！" target="*gamepwin4_a1"]
+[choice text="もうやめる" target="*gamepwin4_b"]
+[s]
+
+*gamepwin4_b
+
+@chara_hide_minami
+[iscript]
+coin = "";
+if(f.jumpn > 1){coin = " X" + String(f.jumpn);}
+disp_insertcoin(coin);
+[endscript]
+
+#
+あっ…[r]
+後払いだったのかよ！[p]
+いいだろう…払ってやる！[p]
+
+@jump target="*gamepwin_end"
 
 
+;---
+;5勝目
+*gamepwin5
+;---
+#
+♡をコンプしたぞ！[p]
+遂に【特別イベント】発動！[r]
+…だよな？[p]
+
+#みなみ
+み、見ないで…[p]
+
+#
+ククク…それは【台本】の方に言うんだな[p]
+
+#みなみ
+ええっと…【台本】によると…[p]
+………[p]
+今晩は親が帰ってこないから…[p]
+
+[dekamoji]も…もう、好きにしていいよ…[resetfont]
+@wait time=500
+[p]
+
+#
+…と言われても？[p]
+
+#みなみ
+男優がいないので、これ以上イベントシーンが進まないみたい…[p]
+
+#
+つまり、それって…[p]
+
+#みなみ
+そもそもR-18のゲームじゃないので【禁則事項】です[p]
+
+#
+これでおしまい！？[p]
+どんだけ【100円玉】突っ込んだと思ってるんだよッ！[p]
 
 
+;@playse storage=""
+@quake count=4 vmax=120 time=800 wait=false
+[dekamoji]バンッ！！！！[resetfont][p]
+@wait time=1500
 
+（思わず拳を振り上げて、殴りつけた）[p]
+
+;peep peep!
+;playse storage=""
+@eval exp="disp_gamemenu('エラーを検知しました');"
+
+！？！？[p]
+
+@eval exp="disp_gamemenu('キャラクターとの契約を解除します');"
+
+え？どういうこと？[p]
+
+;
+;ゲーム終了
+;
+@mask
+#
+[cm]
+@laypot layer="1" visible="false"
+@chara_hide name="minami"
+@maskoff
+
+#みなみ
+あれ？[p]
+
+#
+皆井出さん！？[p]
+どうしてここに？[p]
+
+#みなみ
+こっちが聞きたい！[p]
+
+#
+…目のやり場に困るんだが[p]
+
+#みなみ
+ちょ…ちょっと…[p]
+やだぁ…[p]
+
+#
+ええっと…[p]
+じゃ…じゃあ、また明日ね！[p]
+
+#みなみ
+だっ…だめぇっ！！[p]
+[dekamoji]見ないでぇ！！[resetfont]
+;@playse storage=""
+;@bg storage="black.jpg" time=5000
+[cm]
+おしまい[r]
+【戦績】&f.pwin 勝 &f.plose 敗
+[glink text="メニューにもどる" target=""]
+[s]
 
 
 
