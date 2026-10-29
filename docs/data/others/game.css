@@ -1,309 +1,317 @@
+/* Customlayer */
+#custumlayer{
+  display:flex;
+  width:100%;
+  height:100%;
+  position: relative;
+}
+
 /* 500x500px 盤面コンテナ */
-    #game-container {
-      position: relative;
-      top:20px;
-      left:150px;
-      width: 500px;
-      height: 500px;
-      background-color: #ffffff;
-      border: 2px solid #111111;
-      border-radius: 12px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-    }
+#game-container {
+  position: relative;
+  top:20px;
+  left:150px;
+  width: 500px;
+  height: 500px;
+  background-color: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
 
-    /* ヘッダー情報 */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #111111;
-      padding-bottom: 8px;
-    }
+/* ヘッダー情報 */
+#game-container .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #111111;
+  padding-bottom: 8px;
+}
 
-    .title-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    h1 {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
+.title-group .h1 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
 
-    .sub-tag {
-      font-size: 10px;
-      font-weight: 800;
-      background-color: #111111;
-      color: #ffffff;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
+.sub-tag {
+  font-size: 10px;
+  font-weight: 800;
+  background-color: #111111;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
 
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .turn-badge {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border: 1px solid #111111;
-      border-radius: 16px;
-      background-color: #111111;
-      color: #ffffff;
-    }
+.turn-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border: 1px solid #111111;
+  border-radius: 16px;
+  background-color: #111111;
+  color: #ffffff;
+}
 
-    .btn-reset {
-      background: none;
-      border: 1px solid #111111;
-      padding: 3px 8px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
+.btn-reset {
+  background: none;
+  border: 1px solid #111111;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
 
-    .btn-reset:hover {
-      background-color: #111111;
-      color: #ffffff;
-    }
+.btn-reset:hover {
+  background-color: #111111;
+  color: #ffffff;
+}
 
-    .section-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #666666;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
-    }
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #666666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
 
-    .card-slot-group {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
+.card-slot-group {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
 
-    .card {
-      width: 70px;
-      height: 92px;
-      border: 2px solid #111111;
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 32px;
-      font-weight: bold;
-      background-color: #ffffff;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s;
-    }
+.card {
+  width: 70px;
+  height: 92px;
+  border: 2px solid #111111;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  font-weight: bold;
+  background-color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s;
+}
 
-    /* 空枠スロットのスタイル */
-    .card.slot-empty {
-      border: 2px dashed #aaaaaa;
-      background-color: #f8f8f8;
-      color: #888888;
-      font-size: 20px;
-    }
+/* 空枠スロットのスタイル */
+.card.slot-empty {
+  border: 2px dashed #aaaaaa;
+  background-color: #f8f8f8;
+  color: #888888;
+  font-size: 20px;
+}
 
-    .card.slot-empty:hover {
-      border-color: #111111;
-      color: #111111;
-      background-color: #f0f0f0;
-    }
+.card.slot-empty:hover {
+  border-color: #111111;
+  color: #111111;
+  background-color: #f0f0f0;
+}
 
-    /* 場（Field） */
-    .field-area {
-      background-color: #fafafa;
-      border: 1px dashed #ccc;
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-align: center;
-    }
+/* 場（Field） */
+.field-area {
+  background-color: #fafafa;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+}
 
-    .field-card {
-      box-shadow: 0 4px 0 #111111;
-    }
+.field-card {
+  box-shadow: 0 4px 0 #111111;
+}
 
-    .field-card:hover {
-      transform: translateY(-2px);
-    }
+.field-card:hover {
+  transform: translateY(-2px);
+}
 
-    /* 手札（Hand） */
-    .hand-area {
-      border-top: 1px solid #eeeeee;
-      padding-top: 6px;
-    }
+/* 手札（Hand） */
+.hand-area {
+  border-top: 1px solid #eeeeee;
+  padding-top: 6px;
+}
 
-    .hand-card {
-      box-shadow: 0 4px 0 #111111;
-    }
+.hand-card {
+  box-shadow: 0 4px 0 #111111;
+}
 
-    .hand-card.selected {
-      background-color: #111111;
-      color: #ffffff;
-      transform: translateY(-6px);
-      box-shadow: 0 8px 0 #666666;
-    }
+.hand-card.selected {
+  background-color: #111111;
+  color: #ffffff;
+  transform: translateY(-6px);
+  box-shadow: 0 8px 0 #666666;
+}
 
-    /* 出現カードカウンター */
-    .tracker-area {
-      border-top: 2px solid #111111;
-      padding-top: 6px;
-    }
+/* 出現カードカウンター */
+.tracker-area {
+  border-top: 2px solid #111111;
+  padding-top: 6px;
+}
 
-    .tracker-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-    }
+.tracker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
 
-    .tracker-item {
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 3px 0;
-      text-align: center;
-      font-size: 11px;
-    }
+.tracker-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 3px 0;
+  text-align: center;
+  font-size: 11px;
+}
 
-    .tracker-symbol {
-      font-weight: bold;
-      font-size: 13px;
-      display: block;
-      margin-bottom: 1px;
-    }
+.tracker-symbol {
+  font-weight: bold;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 1px;
+}
 
-    /* メッセージ通知 */
-    .message-bar {
-      font-size: 12px;
-      font-weight: 600;
-      text-align: center;
-      height: 18px;
-      line-height: 18px;
-      color: #333333;
-    }
+/* メッセージ通知 */
+.message-bar {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  height: 18px;
+  line-height: 18px;
+  color: #333333;
+}
 
-    /* オーバーレイ（勝敗表示用） */
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.94);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      z-index: 10;
-    }
+/* オーバーレイ（勝敗表示用） */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.94);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
 
-    .overlay.hidden {
-      display: none;
-    }
+.overlay.hidden {
+  display: none;
+}
 
-    .overlay-title {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: 2px;
-    }
+.overlay-title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
 
-    .overlay-desc {
-      font-size: 14px;
-      color: #444;
-    }
+.overlay-desc {
+  font-size: 14px;
+  color: #444;
+}
 
-    /* insertCoin用 */
-    .gamemenu {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #111111;
-      border: 4px solid #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      z-index: 10;
-    }
+/* insertCoin用 */
+.gamemenu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111111;
+  border: 4px solid #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
 
-    .gamemenu.hidden {
-      display: none;
-    }
+.gamemenu.hidden {
+  display: none;
+}
 
-    .gamemenu-title {
-      font-size: 24px;
-      font-weight: 900;
-      color:#f8f8f8;
-      letter-spacing: 2px;
-    }
+.gamemenu-title {
+  font-size: 24px;
+  font-weight: 900;
+  color:#f8f8f8;
+  letter-spacing: 2px;
+}
 
-    .floating-arrow {
-      display: inline-block; /* 上下動（transform）を有効にするため */
-      font-size: 24px;
-      animation: float 1s ease-in-out infinite alternate;
-    }
+.floating-arrow {
+  display: inline-block; /* 上下動（transform）を有効にするため */
+  font-size: 24px;
+  animation: float 1s ease-in-out infinite alternate;
+}
 
-    @keyframes float {
-    0% {
-      transform: translateY(0);
-    }
-    100% {
-      transform: translateY(8px); /* 下に移動する距離 */
-    }
-    }
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(8px); /* 下に移動する距離 */
+  }
+}
 
-    .btn-main {
-      color: #111111;
-      background-color: #ffffff;
-      border: none;
-      padding: 10px 24px;
-      font-size: 14px;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+.btn-main {
+  color: #111111;
+  background-color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-    .btn-main:hover {
-      background-color: #333333;
-    }
+.btn-main:hover {
+  background-color: #333333;
+}
 
-    /* リーチカットイン演出 */
-    .reach-cutin {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      /* 修正: 黒背景を透明にし、要素背後のクリック操作のみ無効化 */
-	    background-color: transparent; 
-      display: flex;
-      flex-direction: column;
-	    justify-content: center;
-	    align-items: center;
-	    z-index: 30;
-	    pointer-events: none;
-	    /* opacity: 0; */
-	    overflow: hidden;
-    }
+/* リーチカットイン演出 */
+.reach-cutin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 修正: 黒背景を透明にし、要素背後のクリック操作のみ無効化 */
+	background-color: transparent; 
+  display: flex;
+  flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 30;
+	pointer-events: none;
+	/* opacity: 0; */
+	overflow: hidden;
+}
 
     .reach-cutin.hidden {
       display: none;
@@ -412,145 +420,71 @@
       }
     }
 
-
-    /* noise 外枠（幅400px, 高さ550px） */
-    .noise-container {
-      width: 380px;
-      height: 480px;
-      position: relative;
-      top:20px;
-      left:830px;
-      overflow: hidden;
-      background-color: #666666;
-      border-radius: 8px;
-    }
-
-    /* 
-      【極小負荷】垂直・水平の直線のみで作るブロックノイズ層
-      ・斜め線を一切使わないため、描画コストが最小
-      ・ドット（ブロック）のサイズを大きめ（6px〜12px）に設定し、描画要素数を削減
-    */
-    .noise-layer {
-      position: absolute;
-      top: -2%;
-      left: -2%;
-      width: 104%;
-      height: 104%;
-	filter: contrast(0.2) brightness(0.75);
-      /* 縦線と横線を交差させてグリッドブロックを作成 */
-      background-image: 
-        repeating-linear-gradient(90deg, #fff 0 3px, transparent 3px 9px),
-        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0 4px, transparent 4px 8px);
-
-      background-size: 18px 18px, 24px 24px;
-      opacity: 0.5;
-
-      /* GPU処理への最適化 */
-      will-change: transform, background-position;
-      animation: block-noise-step 0.5s steps(1) infinite;
-    }
-
-    /* デジタル感（走査線） */
-    .noise-overlay {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.3) 0px,
-        rgba(0, 0, 0, 0.3) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-      pointer-events: none;
-    }
-
-    /* 格子パターンを瞬間的に大きくジャンプさせてコマ送りノイズ化 */
-    @keyframes block-noise-step {
-      0%   { transform: translate(0, 0); background-position: 0 0, 0 0; }
-      25%  { transform: translate(-4px, 2px); background-position: -18px 36px, 24px -12px; }
-      50%  { transform: translate(3px, -3px); background-position: 36px -18px, -48px 24px; }
-      75%  { transform: translate(-2px, -1px); background-position: -54px 18px, 12px -36px; }
-      100% { transform: translate(0, 0); background-position: 0 0, 0 0; }
-    }
-
-/* Custom Css */
-.iscript-rainbow-box {
-  position: absolute;
-  top:290px;
-  left:800px;
-  width: 360px;
-  height: 180px;
-  //padding: 10px; /* 3pxのライン */
-  border: 10px solid transparent;
+/* */
+/* noise 外枠（幅400px, 高さ550px） */
+.noise-container {
+  width: 380px;
+  height: 660px;
+  position: relative;
+  top:30px;
+  left:830px;
+  overflow: hidden;
+  background-color: #666666;
   border-radius: 8px;
-  /* 枠線そのものにグラデーションを適用 */
-  border-image: linear-gradient(
-    calc(var(--hue, 0) * 1deg),
-    hsl(var(--hue, 0), 100%, 50%),
-    hsl(calc(var(--hue, 0) + 60), 100%, 50%),
-    hsl(calc(var(--hue, 0) + 120), 100%, 50%),
-    hsl(calc(var(--hue, 0) + 180), 100%, 50%),
-    hsl(calc(var(--hue, 0) + 240), 100%, 50%),
-    hsl(calc(var(--hue, 0) + 300), 100%, 50%)
-  ) 1;
-
-  /* 背景は完全透明 */
-  background: transparent;
 }
 
-.rgb-border-box {
+/* 
+  【極小負荷】垂直・水平の直線のみで作るブロックノイズ層
+  ・斜め線を一切使わないため、描画コストが最小
+  ・ドット（ブロック）のサイズを大きめ（6px〜12px）に設定し、描画要素数を削減
+*/
+.noise-layer {
   position: absolute;
-  top:290px;
-  left:800px;
-  width: 360px;
-  height: 180px;
-  
-  /* 背景を完全透過 */
-  background: transparent;
-  
-  /* 10pxの枠線を指定 */
-  border: 10px solid transparent;
-  
-  /* 枠線に虹色グラデーションを適用 */
-  border-image: linear-gradient(
-    135deg,
-    #ff0000,
-    #ff7f00,
-    #ffff00,
-    #00ff00,
-    #00ffff,
-    #0000ff,
-    #8b00ff
-  ) 1;
+  top: -2%;
+  left: -2%;
+  width: 104%;
+  height: 104%;
+	filter: contrast(0.2) brightness(0.75);
+  /* 縦線と横線を交差させてグリッドブロックを作成 */
+    background-image: 
+    repeating-linear-gradient(90deg, #fff 0 3px, transparent 3px 9px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0 4px, transparent 4px 8px);
 
-  /* 色相変化と明滅のアニメーション */
-  animation: 
-    rgb-shift 3s linear infinite,
-    rgb-pulse 1.2s ease-in-out infinite alternate;
+    background-size: 18px 18px, 24px 24px;
+    opacity: 0.5;
+
+    /* GPU処理への最適化 */
+    will-change: transform, background-position;
+    animation: block-noise-step 0.5s steps(1) infinite;
+  }
+
+  /* デジタル感（走査線） */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.3) 0px,
+    rgba(0, 0, 0, 0.3) 2px,
+    transparent 2px,
+    transparent 4px
+    );
+    pointer-events: none;
 }
 
-/* 虹色を滑らかに変化させる */
-@keyframes rgb-shift {
-  0% {
-    filter: hue-rotate(0deg);
-  }
-  100% {
-    filter: hue-rotate(360deg);
-  }
+/* 格子パターンを瞬間的に大きくジャンプさせてコマ送りノイズ化 */
+@keyframes block-noise-step {
+  0%   { transform: translate(0, 0); background-position: 0 0, 0 0; }
+  25%  { transform: translate(-4px, 2px); background-position: -18px 36px, 24px -12px; }
+  50%  { transform: translate(3px, -3px); background-position: 36px -18px, -48px 24px; }
+  75%  { transform: translate(-2px, -1px); background-position: -54px 18px, 12px -36px; }
+  100% { transform: translate(0, 0); background-position: 0 0, 0 0; }
 }
 
-/* 枠線の発光・透明度を明滅させる */
-@keyframes rgb-pulse {
-  0% {
-    opacity: 0.2;
-  }
-  100% {
-    opacity: 1;
-    /* 外側へ光が漏れ出すネオン効果 */
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-  }
-}
 
+/* */
+/* gaming rect */
+/* */
 .rainbow-box-wrapper {
   position: relative;
   width: 300px;
@@ -573,7 +507,7 @@
     10px 10px
   );
 
-      /* 枠線の明滅アニメーション */
+  /* 枠線の明滅アニメーション */
   animation: pulse-opacity 2.5s ease-in-out infinite alternate;
 }
 
@@ -588,58 +522,42 @@
   width: 500px;
   height: 500px;
   background: conic-gradient(
-     #ff0000,
-      #ff7f00,
-        #ffff00,
-        #00ff00,
-        #00ffff,
-        #0000ff,
-        #8b00ff,
-        #ff0000
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #8b00ff,
+    #ff0000
   );
 
-      /* アニメーション適用 */
-      animation: rotate-rainbow 3s linear infinite;
-      z-index: -1;
+  /* アニメーション適用 */
+  animation: rotate-rainbow 3s linear infinite;
+  z-index: -1;
 }
 
-/* 枠内のコンテンツ */
-.content {
-  position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #ffffff;
-      font-family: sans-serif;
-      font-weight: bold;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  /* 回転軸を完全中央（translate(-50%, -50%)）に固定したまま回転 */
+  @keyframes rotate-rainbow {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
     }
-
-    /* 回転軸を完全中央（translate(-50%, -50%)）に固定したまま回転 */
-    @keyframes rotate-rainbow {
-      from {
-        transform: translate(-50%, -50%) rotate(0deg);
-      }
-      to {
-        transform: translate(-50%, -50%) rotate(360deg);
-      }
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
     }
+  }
 
     /* 明滅アニメーション */
-    @keyframes pulse-opacity {
-      0% {
-        opacity: 0.3;
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
-      }
-      50% {
-        opacity: 0.7;
-      }
-      100% {
-        opacity: 1;
-        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
-      }
+  @keyframes pulse-opacity {
+    0% {
+      opacity: 0.3;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
     }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 1;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+    }
+  }

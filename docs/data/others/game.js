@@ -1,3 +1,9 @@
+function appendCustomlayer(){
+  const strhtml=`<div id="custumlayer"></div>`;
+
+  $("#custumlayer").remove();
+  $(".1_fore").append(strhtml);
+}
 
 function disp_gameboard(){
 const strhtml=`
@@ -61,7 +67,7 @@ const strhtml=`
   </div>
   `;
   $("#game-container").remove();
-  $(".1_fore").append(strhtml);
+  $("#custumlayer").append(strhtml);
   //$(".fix").append(strhtml);
 }
 
@@ -552,8 +558,12 @@ function disp_noise(){
 
 function disp_gamingrect(){
   const strhtml=`
-  <div id="gamingrect" class="iscript-rainbow-box"></div>
+  <div style="position:absolute; left:820px; top:300px;">
+  <div id="gamingrect" class="rainbow-box-wrapper">
+    <div class="rainbow-box"></div>
+  </div>
+  </div>
   `;
   $("#gamingrect").remove();
-  $(".0_fore").append(strhtml);
+  $("#custumlayer").append(strhtml);
 }
