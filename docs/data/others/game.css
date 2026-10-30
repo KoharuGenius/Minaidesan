@@ -386,7 +386,7 @@
     /* CPUが置いた位置を強調するアニメーション */
     .card.highlight-player, .card.highlight-cpu {
       position: relative;
-      border: 2px solid transparent !important;
+      border: 3px solid transparent !important;
       background-origin: border-box;
       background-clip: padding-box, border-box;
     }
@@ -421,7 +421,7 @@
     }
 
 /* */
-/* noise 外枠（幅400px, 高さ550px） */
+/* noise 外枠 */
 .noise-container {
   width: 380px;
   height: 660px;
@@ -481,30 +481,110 @@
   100% { transform: translate(0, 0); background-position: 0 0, 0 0; }
 }
 
+/* --------------------------------------------------
+ * 1. 演出を閉じ込める指定サイズの枠（ゲーム画面）
+ * -------------------------------------------------- */
+.chara-window {
+  position: relative; /* 子要素の絶対配置の基準 */
+  top:20px;
+  left:820px;
+  width: 400px;
+  height: 680px;
+  overflow: hidden;   /* 枠からはみ出る粒子をカット */
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  background-color: var(--bg-color);
+  }
+
+ /* --------------------------------------------------
+  * 2. 枠内いっぱいに広げる粒子背景レイヤー
+  * -------------------------------------------------- */
+  .particle-bg {
+    position: absolute;
+    inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; と同義 */
+    pointer-events: none;
+
+  /* 
+   * 複数の円形グラデーション（粒子）を重ね合わせて定義
+   * 位置（at X% Y%）は 400px x 680px の範囲内で分散
+   */
+    background-image: 
+      /* 層 A : 標準サイズの粒子群 */
+      radial-gradient(circle 4px at 15% 25%, rgba(140, 140, 145, 0.45) 99%, transparent 100%),
+      radial-gradient(circle 5px at 48% 70%, rgba(150, 150, 155, 0.4)  99%, transparent 100%),
+      radial-gradient(circle 3px at 78% 18%, rgba(130, 130, 135, 0.5)  99%, transparent 100%),
+      radial-gradient(circle 4px at 85% 62%, rgba(160, 160, 165, 0.35) 99%, transparent 100%),
+
+      /* 層 B : 小さめで遠くにある粒子群 */
+      radial-gradient(circle 2px at 28% 82%, rgba(150, 150, 155, 0.35) 99%, transparent 100%),
+      radial-gradient(circle 3px at 60% 38%, rgba(140, 140, 145, 0.3)  99%, transparent 100%),
+      radial-gradient(circle 2px at 90% 88%, rgba(130, 130, 135, 0.4)  99%, transparent 100%),
+
+      /* 層 C : 大きめで手前にあるボケ感のある粒子群 */
+      radial-gradient(circle 7px at 12% 60%, rgba(140, 140, 145, 0.25) 99%, transparent 100%),
+      radial-gradient(circle 6px at 35% 12%, rgba(160, 160, 165, 0.2)  99%, transparent 100%),
+      radial-gradient(circle 8px at 72% 80%, rgba(130, 130, 135, 0.25) 99%, transparent 100%),
+
+      /* 全体ベース背景グラデーション */
+      radial-gradient(circle at 50% 50%, #faf9f6 0%, #edebe6 100%);
+
+      /* 
+       * 高さを枠と同じ 680px に合わせることで1画面ループを成立させる
+       */
+      background-size: 100% 680px;
+      background-repeat: repeat-y;
+
+      will-change: background-position;
+      animation: bgFloatUp 16s linear infinite;
+    }
+
+    /* --------------------------------------------------
+     * 高さ 680px 分スクロールさせてシームレスループ
+     * -------------------------------------------------- */
+    @keyframes bgFloatUp {
+      0% {
+        background-position: 
+          0 0, 0 0, 0 0, 0 0,
+          0 0, 0 0, 0 0,
+          0 0, 0 0, 0 0,
+          0 0;
+      }
+      100% {
+        /* 高さと同じ -680px 分移動 */
+        background-position: 
+          0 -680px, 0 -680px, 0 -680px, 0 -680px,
+          0 -680px, 0 -680px, 0 -680px,
+          0 -680px, 0 -680px, 0 -680px,
+          0 0;
+      }
+    }
+
 
 /* */
 /* gaming rect */
 /* */
 .rainbow-box-wrapper {
+  --border-width: 15px;
   position: relative;
   width: 300px;
-  height: 150px;
+  height: 230px;
 }
 
 .rainbow-box {
   position: absolute;
   inset: 0;
-  background: transparent;
+  /* background: transparent; */
+  /* background-color: rgba(255, 255, 255, 0.5); */ /* 50%透過 */
   overflow: hidden;
-
-  /* clip-pathで10pxの枠線だけを残し、内側をくり抜き */
+  
+  /* clip-pathで[n]pxの枠線だけを残し、内側をくり抜き */  
   clip-path: polygon(
     0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
-    10px 10px,
-    10px calc(100% - 10px),
-    calc(100% - 10px) calc(100% - 10px),
-    calc(100% - 10px) 10px,
-    10px 10px
+    var(--border-width) var(--border-width),
+    var(--border-width) calc(100% - var(--border-width)),
+    calc(100% - var(--border-width)) calc(100% - var(--border-width)),
+    calc(100% - var(--border-width)) var(--border-width),
+    var(--border-width) var(--border-width)
   );
 
   /* 枠線の明滅アニメーション */
@@ -515,10 +595,10 @@
 .rainbow-box::before {
   content: '';
   position: absolute;
-  /* 300x150pxの要素の中央に配置するため50%指定 */
+  /* 中央に配置するため50%指定 */
   top: 50%;
   left: 50%;
-  /* 300x150の対角線（約335px）を十分にカバーする十分な大きさの正方形 */
+  /* 十分な大きさの正方形 */
   width: 500px;
   height: 500px;
   background: conic-gradient(
@@ -550,14 +630,23 @@
     /* 明滅アニメーション */
   @keyframes pulse-opacity {
     0% {
-      opacity: 0.3;
+      opacity: 0.8;
       filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
     }
     50% {
-      opacity: 0.7;
+      opacity: 0.95;
     }
     100% {
       opacity: 1;
       filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
     }
+  }
+
+  .rainbow-box-bokashi {
+    position: absolute;
+    inset: var(--border-width);
+    width: calc(100% - (var(--border-width) * 2));
+    height: calc(100% - (var(--border-width) * 2));
+    /* background-color:rgba(230,230,230,0.8); */
+    backdrop-filter: blur(5px);
   }

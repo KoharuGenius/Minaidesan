@@ -14,7 +14,7 @@ const strhtml=`
         <!-- <span class="sub-tag">vs CPU</span> -->
       </div>
       <div class="header-controls">
-        <div id="turn-badge" class="turn-badge">P1 TURN</div>
+        <div id="turn-badge" class="turn-badge">ああああ TURN</div>
         <button id="btn-reset-game" class="btn-reset" onclick="initGame()">RESET</button>
       </div>
     </header>
@@ -27,7 +27,7 @@ const strhtml=`
       <!-- 場 (3枠) -->
       <div class="field-area">
         <div class="section-label">
-          <span>FIELD (2 - 3 CARDS)</span>
+          <span>FIELD</span>
           <span>DECK: <span id="deck-count">0</span></span>
         </div>
         <div class="card-slot-group" id="field-slots"></div>
@@ -36,7 +36,7 @@ const strhtml=`
       <!-- 手札 -->
       <div class="hand-area">
         <div class="section-label">
-          <span id="hand-label">PLAYER 1 HAND</span>
+          <span id="hand-label">ああああ HAND</span>
           <span>SELECT & PLAY</span>
         </div>
         <div class="card-slot-group" id="hand-slots"></div>
@@ -90,7 +90,6 @@ function disp_menufloating(strtxt){
     `;
   disp_gamemenu(strhtml);
 }
-
 
 function disp_button(){
     const strhtml=`
@@ -545,6 +544,99 @@ function initGame() {
       });
     }
 
+
+/**
+ * 盤面（場と手札）に任意のカードをデモ表示する関数
+ * @param {Array<string|null>} fieldCards - 場のカード配列（要素数3）。空枠は null
+ * @param {Array<string>} handCards - 表示したい手札のカード配列
+ * @param {number} playerNum - どちらの手札として表示するか (1 または 2)
+ */
+function demoSetBoard(fieldCards, handCards, playerNum = 1) {
+  // 場の描画（クリックイベントなし）
+  const fieldSlots = document.getElementById('field-slots');
+  fieldSlots.innerHTML = '';
+  
+  // リーチ判定関数（既存コードのisReachState）を利用して点滅演出を適用
+  //const isReach = isReachState(fieldCards);
+  const isReach = false;
+
+  fieldCards.forEach((symbol) => {
+    const card = document.createElement('div');
+    if (symbol === null) {
+      card.className = `card slot-empty ${isReach ? 'reach-pulse' : ''}`;
+      card.textContent = '+';
+    } else {
+      card.className = `card field-card ${isReach ? 'reach-pulse' : ''}`;
+      card.textContent = symbol;
+    }
+    // クリックイベント(card.onclick)を設定しないことで操作不可にする
+    card.style.cursor = 'default'; // カーソルを通常表示に変更
+    fieldSlots.appendChild(card);
+  });
+
+  // 手札の描画（クリックイベントなし）
+  const handSlots = document.getElementById('hand-slots');
+  handSlots.innerHTML = '';
+
+  handCards.forEach((symbol) => {
+    const card = document.createElement('div');
+    card.className = 'card hand-card';
+    card.textContent = symbol;
+    
+    // クリックイベント(card.onclick)を設定しないことで操作不可にする
+    card.style.cursor = 'default';
+    handSlots.appendChild(card);
+  });
+}
+
+/**
+ * 公開情報カウンターに指定の出現数をデモ表示する関数
+ * @param {Array<string>|Object} exposedInput - 出現済みカードの配列 または { '〇': 2, '×': 1, ... } のようなカウントオブジェクト
+ */
+function demoSetTracker(exposedInput) {
+  const trackerGrid = document.getElementById('tracker-grid');
+  trackerGrid.innerHTML = '';
+
+  const allSymbols = ['〇', '×', '△', '□', '☆', 'S'];
+
+  allSymbols.forEach(type => {
+    let count = 0;
+    
+    if (Array.isArray(exposedInput)) {
+      // 配列で渡された場合は要素数をカウント
+      count = exposedInput.filter(c => c === type).length;
+    } else if (typeof exposedInput === 'object' && exposedInput !== null) {
+      // オブジェクトで直接数値指定された場合
+      count = exposedInput[type] || 0;
+    }
+
+    const total = TOTAL_COUNTS[type] || 5;
+    const item = document.createElement('div');
+    item.className = 'tracker-item';
+    item.innerHTML = `<span class="tracker-symbol">${type}</span>${count}/${total}`;
+    
+    trackerGrid.appendChild(item);
+  });
+}
+
+function demoHandcardHiligt(symbol) {
+  // 1. 親要素を取得
+  const parentElement = document.getElementById('hand-slots');
+
+  // 2. 配下の特定要素を全て取得
+  const childElements = parentElement.querySelectorAll('.card.hand-card');
+
+  // 3. 各子要素の textContent を確認
+  childElements.forEach((child) => {
+    if(child.textContent.trim() == symbol){
+      child.className = 'card hand-card selected';
+    }else{
+      child.className = 'card hand-card';
+    }
+  });
+}
+
+// ノイズ表示    
 function disp_noise(){
   const strhtml=`
   <div class="noise-container">
@@ -556,11 +648,27 @@ function disp_noise(){
   $(".0_fore").append(strhtml);
 }
 
+// キャラクター背景表示    
+function disp_charawindow(){
+  const strhtml=`
+  <div class="chara-window">
+    <div class="particle-bg"></div>
+  </div>
+  `;
+  $(".chara-window").remove();
+  $(".noise-container").remove();
+  $(".0_fore").append(strhtml);
+}
+
+
+// 虹色矩形表示
+// 
 function disp_gamingrect(){
   const strhtml=`
-  <div style="position:absolute; left:820px; top:300px;">
+  <div style="position:absolute; left:870px; top:390px;">
   <div id="gamingrect" class="rainbow-box-wrapper">
     <div class="rainbow-box"></div>
+    <div class="rainbow-box-bokashi"></div>
   </div>
   </div>
   `;
