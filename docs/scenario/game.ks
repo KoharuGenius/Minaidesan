@@ -361,7 +361,7 @@ INSERT したいのは COIN じゃなくってな…[p]
 [cm]
 ジャンプしてみろよ、おらっ！
 ;@playse storage=""
-@quake count=1 vmax=150 time=1200
+@quake count=1 vmax=150 time=800
 @eval exp="f.jumpn++";
 #
 @wait time=1000
@@ -382,6 +382,7 @@ disp_insertcoin(coin);
 [endscript]
 
 #
+[cm]
 あっ…[r]
 後払いだったのかよ！[p]
 いいだろう…払ってやる！[p]
@@ -417,7 +418,7 @@ disp_insertcoin(coin);
 …と言われても？[p]
 
 #みなみ
-男優がいないので、これ以上イベントシーンが進まないみたい…[p]
+男優がいないので、これ以上イベントシーンが進まないかも…[p]
 
 #
 つまり、それって…[p]
@@ -427,6 +428,12 @@ disp_insertcoin(coin);
 
 #
 これでおしまい！？[p]
+
+#みなみ
+おしまい！[p]
+
+#
+[dekamoji]おーーーいっ！[resetfont][p]
 どんだけ【100円玉】突っ込んだと思ってるんだよッ！[p]
 
 
@@ -484,7 +491,7 @@ disp_insertcoin(coin);
 ;@playse storage=""
 ;@bg storage="black.jpg" time=5000
 [cm]
-おしまい[r]
+おしまい[font size=10]（📷スクショもどうぞ）[resetfont][r]
 【戦績】&f.pwin 勝 &f.plose 敗
 [glink text="メニューにもどる" target=""]
 [s]

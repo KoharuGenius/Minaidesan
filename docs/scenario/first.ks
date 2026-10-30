@@ -32,23 +32,25 @@
 ;文字が表示される領域を調整
 [position layer=message0 page=fore margint="45" marginl="50" marginr="70" marginb="60"]
 
-
-;メッセージウィンドウの表示
-;@layopt layer=message0 visible=true
-
 ;キャラクターの名前が表示される文字領域
 [ptext name="chara_name_area" layer="message0" color="white" size=28 bold=true x=20 y=560]
 
 ;上記で定義した領域がキャラクターの名前表示であることを宣言（これがないと#の部分でエラーになります）
 [chara_config ptext="chara_name_area"]
 
+;メッセージボックスは非表示
+@layopt layer="message" visible=false
+
+;最初は右下のメニューボタンを非表示にする
+[hidemenubutton]
+
 ;****Macro Define
 [macro name="choice"]
-    [glink color="btn_06_yellow" size="24" width="600" text=%text target=%target]
+[glink color="btn_06_yellow" size="24" width="600" *]
 [endmacro]
 
 [macro name="dekamoji"]
-    [font size="40" bold="true"]
+[font size="40" bold="true"]
 [endmacro]
 
 [macro name="chara_hide_minami"]
@@ -64,12 +66,6 @@
 チャリン。[p]
 [endmacro]
 
-;メッセージボックスは非表示
-@layopt layer="message" visible=false
-
-;最初は右下のメニューボタンを非表示にする
-[hidemenubutton]
-
 ;タイトル画面へ移動
 @jump storage="title.ks"
 
@@ -80,16 +76,20 @@
 ;@eval exp="$('.noise-container').remove();"
 [iscript]
 disp_menufloating("PLAYING...");
-$('.noise-container').remove();
+disp_charawindow();
 disp_gamingrect();
 [endscript]
-@chara_show name="minami" left=820 top=20 width=400 height=680 time=100
+;@chara_show name="minami" left=820 top=20 width=400 height=680 time=100
+;@layopt layer="0" visible=true
+@image layer="0" storage="mnmbase.png" left=820 top=20 visible="true"
 [return]
 
 *sub_chara_hide_minami
 @chara_hide name="minami" time=100
+@freeimage layer="0"
 [iscript]
 $("#gamingrect").remove();
 disp_noise();
 [endscript]
+@layopt layer="0" visible=true
 [return]
