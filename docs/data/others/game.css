@@ -426,8 +426,6 @@
   width: 380px;
   height: 660px;
   position: relative;
-  top:30px;
-  left:830px;
   overflow: hidden;
   background-color: #666666;
   border-radius: 8px;
@@ -493,7 +491,7 @@
   overflow: hidden;   /* 枠からはみ出る粒子をカット */
   border-radius: 16px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  background-color: var(--bg-color);
+  /* background-color: var(--bg-color); */
   }
 
  /* --------------------------------------------------
@@ -510,20 +508,20 @@
    */
     background-image: 
       /* 層 A : 標準サイズの粒子群 */
-      radial-gradient(circle 4px at 15% 25%, rgba(140, 140, 145, 0.45) 99%, transparent 100%),
-      radial-gradient(circle 5px at 48% 70%, rgba(150, 150, 155, 0.4)  99%, transparent 100%),
-      radial-gradient(circle 3px at 78% 18%, rgba(130, 130, 135, 0.5)  99%, transparent 100%),
-      radial-gradient(circle 4px at 85% 62%, rgba(160, 160, 165, 0.35) 99%, transparent 100%),
+      radial-gradient(circle 4px at 5% 25%, rgba(140, 140, 145, 0.45) 99%, transparent 100%),
+      radial-gradient(circle 5px at 10% 70%, rgba(150, 150, 155, 0.4)  99%, transparent 100%),
+      radial-gradient(circle 3px at 80% 18%, rgba(130, 130, 135, 0.5)  99%, transparent 100%),
+      radial-gradient(circle 4px at 92% 62%, rgba(160, 160, 165, 0.35) 99%, transparent 100%),
 
       /* 層 B : 小さめで遠くにある粒子群 */
-      radial-gradient(circle 2px at 28% 82%, rgba(150, 150, 155, 0.35) 99%, transparent 100%),
-      radial-gradient(circle 3px at 60% 38%, rgba(140, 140, 145, 0.3)  99%, transparent 100%),
-      radial-gradient(circle 2px at 90% 88%, rgba(130, 130, 135, 0.4)  99%, transparent 100%),
+      radial-gradient(circle 2px at 8% 82%, rgba(150, 150, 155, 0.35) 99%, transparent 100%),
+      radial-gradient(circle 3px at 12% 38%, rgba(140, 140, 145, 0.3)  99%, transparent 100%),
+      radial-gradient(circle 2px at 95% 88%, rgba(130, 130, 135, 0.4)  99%, transparent 100%),
 
       /* 層 C : 大きめで手前にあるボケ感のある粒子群 */
-      radial-gradient(circle 7px at 12% 60%, rgba(140, 140, 145, 0.25) 99%, transparent 100%),
-      radial-gradient(circle 6px at 35% 12%, rgba(160, 160, 165, 0.2)  99%, transparent 100%),
-      radial-gradient(circle 8px at 72% 80%, rgba(130, 130, 135, 0.25) 99%, transparent 100%),
+      radial-gradient(circle 7px at 18% 60%, rgba(140, 140, 145, 0.25) 99%, transparent 100%),
+      radial-gradient(circle 6px at 7% 12%, rgba(160, 160, 165, 0.2)  99%, transparent 100%),
+      radial-gradient(circle 8px at 85% 80%, rgba(130, 130, 135, 0.25) 99%, transparent 100%),
 
       /* 全体ベース背景グラデーション */
       radial-gradient(circle at 50% 50%, #faf9f6 0%, #edebe6 100%);
@@ -559,15 +557,95 @@
       }
     }
 
+/* 画面いっぱいに広がる勝利レイヤー */
+    .victory-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      /* opacity: 0; */
+      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background-color: #aa8888;
+    }
+
+    /* 四角・対角線を完全に包み込む特大光輪 (~750px) */
+    .sunburst-halo {
+      position: absolute;
+      width: 750px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at center, 
+        rgba(255, 228, 235, 0.75) 0%, 
+        rgba(255, 192, 203, 0.45) 35%,
+        rgba(250, 218, 221, 0.2) 60%,
+        rgba(255, 255, 255, 0) 80%
+      );
+      /* transform: scale(0.85); */
+      will-change: opacity;
+      mix-blend-mode: screen;
+      animation: haloPulse 6s ease-in-out infinite alternate;
+    }
+
+    /* 画面角まで一切隙間なく届く特大光線 (~1000px) */
+    .sunburst-rays {
+      position: absolute;
+      width: 1000px;
+      height: 1000px;
+      background: conic-gradient(
+        from 0deg at 50% 50%,
+        transparent 0deg 15deg,
+        rgba(255, 215, 225, 0.35) 15deg 35deg,
+        transparent 35deg 60deg,
+        rgba(255, 192, 203, 0.25) 60deg 80deg,
+        transparent 80deg 110deg,
+        rgba(255, 228, 235, 0.38) 110deg 135deg,
+        transparent 135deg 170deg,
+        rgba(255, 204, 213, 0.3) 170deg 195deg,
+        transparent 195deg 225deg,
+        rgba(255, 192, 203, 0.28) 225deg 250deg,
+        transparent 250deg 280deg,
+        rgba(255, 228, 235, 0.32) 280deg 310deg,
+        transparent 310deg 340deg,
+        rgba(255, 215, 225, 0.25) 340deg 360deg
+      );
+      border-radius: 50%;
+      will-change: transform;
+      mix-blend-mode: screen;
+      animation: rotateRays 30s linear infinite;
+    }
+
+    /* アニメーション定義 */
+    @keyframes haloPulse {
+      0% { 
+        /* transform: scale(1.0); */ 
+        opacity: 0.65; 
+      }
+      100% { 
+        /* transform: scale(1.2); */ 
+        opacity: 0.95; 
+      }
+    }
+
+    @keyframes rotateRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
 
 /* */
 /* gaming rect */
 /* */
 .rainbow-box-wrapper {
-  --border-width: 15px;
+  --border-width: 30px;
   position: relative;
   width: 300px;
-  height: 230px;
+  height: 235px;
 }
 
 .rainbow-box {
@@ -648,5 +726,5 @@
     width: calc(100% - (var(--border-width) * 2));
     height: calc(100% - (var(--border-width) * 2));
     /* background-color:rgba(230,230,230,0.8); */
-    backdrop-filter: blur(5px);
+    /* backdrop-filter: blur(5px);*/
   }

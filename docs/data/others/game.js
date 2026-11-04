@@ -113,6 +113,9 @@ let gameOver = false;
 const cpuPlayer = 2; // CPUは常にP2
 let isActionInProgress = false;
 
+// Audio
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
 function initGame() {
   TYRANO.kag.stat.f.gamebusy = true;
   gameOver = false;
@@ -156,6 +159,7 @@ function initGame() {
   render();
 
   checkCpuTurn();
+  //TYRANO.kag.ftag.startTag("playbgm",{storage:"butoukai.mp3"});
 }
 
     function shuffle(arr) {
@@ -300,6 +304,7 @@ function initGame() {
         targetSlot.classList.remove(highlightClass);
         callback();
       }, 800);
+      playClickSound();
     }
 
     function triggerReachCutin() {
@@ -636,42 +641,81 @@ function demoHandcardHiligt(symbol) {
   });
 }
 
+function playClickSound() {
+  // ブラウザの自動再生規制対策（休止状態を解除）
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+
+  // オシレーター（音源）とゲイン（音量調整）を作成
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = 'triangle'; // 音色（sine, square, triangle, sawtooth）
+  osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // 周波数（Hz）
+  osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.03); // 一瞬で高音から低音へ落とす
+
+  // 音量のエンベロープ設定（0.03秒で減衰させてクリック感を出す）
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+
+  // ノードを接続
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  // 再生と停止
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.03);
+}
+
 // ノイズ表示    
 function disp_noise(){
   const strhtml=`
+  <div id="noise-container" style="position:absolute; top:30px; left:830px;">
   <div class="noise-container">
     <div class="noise-layer"></div>
     <div class="noise-overlay"></div>
   </div>
-  `;
-  $(".noise-container").remove();
-  $(".0_fore").append(strhtml);
-}
-
-// キャラクター背景表示    
-function disp_charawindow(){
-  const strhtml=`
-  <div class="chara-window">
-    <div class="particle-bg"></div>
   </div>
   `;
-  $(".chara-window").remove();
-  $(".noise-container").remove();
-  $(".0_fore").append(strhtml);
+  $("#gamingrect").remove();
+  $("#noise-container").remove();
+  $("#custumlayer").append(strhtml);
 }
-
 
 // 虹色矩形表示
 // 
 function disp_gamingrect(){
   const strhtml=`
-  <div style="position:absolute; left:870px; top:390px;">
-  <div id="gamingrect" class="rainbow-box-wrapper">
+  <div id="gamingrect" style="position:absolute; left:870px; top:385px;">
+  <div class="rainbow-box-wrapper">
     <div class="rainbow-box"></div>
     <div class="rainbow-box-bokashi"></div>
   </div>
   </div>
   `;
+  $("#noise-container").remove();
   $("#gamingrect").remove();
   $("#custumlayer").append(strhtml);
+}
+
+// キャラクター背景表示    
+function disp_charawindow(){
+  const strhtml=`
+  <div id="chara-window" class="chara-window">
+    <div class="particle-bg"></div>
+  </div>
+  `;
+  $("#chara-window").remove();
+  $(".0_fore").append(strhtml);
+}
+
+function disp_minamiwin(){
+  const strhtml=`
+    <div class="victory-layer">
+      <div class="sunburst-halo"></div>
+      <div class="sunburst-rays"></div>
+    </div>
+  `;
+  document.getElementById("chara-window").innerHTML = strhtml;
 }
