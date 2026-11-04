@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字合わせ対戦カードゲーム (Monochrome Minimal Edition)</title>
+    <style>
+        /* Modern Minimalist CSS Reset & Root Theme */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #e6e6e6;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        /* Fixed 500x500 Layout Container */
+        .game-board {
+            width: 500px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Info */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eaeaea;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        .score-item span {
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Mode Selector Tabs */
+        .mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 4px 0;
+        }
+
+        .tab-btn {
+            background: #e0e0e0;
+            border: 1px solid #ccc;
+            color: #666;
+            padding: 3px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #222;
+            color: #fff;
+            border-color: #222;
+        }
+
+        /* Areas */
+        .area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .hand-container {
+            display: flex;
+            gap: 6px;
+            min-height: 70px;
+            align-items: center;
+            padding: 4px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+
+        /* Off-white Card Design */
+        .card {
+            width: 44px;
+            height: 62px;
+            background: #ffffff;
+            color: #111111;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+            position: relative;
+            border: 1px solid #bbb;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .card.selected {
+            border: 2px solid #000;
+            box-shadow: 0 0 0 2px #777;
+            transform: translateY(-6px);
+        }
+
+        .card.drawn {
+            margin-left: 8px;
+            border-color: #333;
+            animation: drawPop 0.2s ease;
+        }
+
+        @keyframes drawPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .card-corner {
+            font-size: 0.65rem;
+            line-height: 1;
+        }
+
+        .card-center {
+            font-size: 1.3rem;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .card-back {
+            background: #d8d8d8;
+            border: 1px solid #aaa;
+        }
+
+        .card-back::after {
+            content: '■';
+            color: #999;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Center Table Area (Deck & Discards) */
+        .table-center {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin: 4px 0;
+            gap: 8px;
+        }
+
+        .deck-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .deck-stack {
+            position: relative;
+            width: 44px;
+            height: 62px;
+        }
+
+        .deck-stack .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .deck-count {
+            font-size: 0.7rem;
+            background: #e0e0e0;
+            color: #333;
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* Discard Pools */
+        .discard-board {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #f0f0f0;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            height: 120px;
+            overflow-y: auto;
+        }
+
+        .discard-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            min-height: 35px;
+        }
+
+        .discard-zone-title {
+            font-size: 0.65rem;
+            color: #666;
+            margin-bottom: 1px;
+        }
+
+        .discard-zone .card {
+            width: 26px;
+            height: 36px;
+            padding: 1px;
+            border-radius: 2px;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        .discard-zone .card:hover {
+            transform: none;
+        }
+
+        .discard-zone .card .card-corner { font-size: 0.5rem; }
+        .discard-zone .card .card-center { font-size: 0.85rem; }
+
+        /* 通常の直前捨て札スタイル */
+        .discard-zone .card.last-discard {
+            border: 2px solid #000;
+            box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        }
+
+        /* リーチ宣言時の捨て札（リーチ牌）のハイライト表示 */
+        .discard-zone .card.reach-discard {
+            border: 2px solid #d32f2f !important;
+            background-color: #fff0f0;
+            box-shadow: 0 0 6px rgba(211, 47, 47, 0.5);
+            position: relative;
+        }
+        .discard-zone .card.reach-discard::after {
+            content: 'R';
+            position: absolute;
+            bottom: 0px;
+            right: 1px;
+            font-size: 0.5rem;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        /* Analysis Panel inside 500x500 */
+        .analysis-panel {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            height: 310px;
+            overflow-y: auto;
+        }
+
+        .analysis-panel.active {
+            display: flex;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            background: #eaeaea;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .sim-metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 4px;
+            padding: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .metric-title {
+            font-size: 0.68rem;
+            color: #555;
+            margin-bottom: 2px;
+        }
+
+        .metric-val {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .progress-bar-bg {
+            background: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+            display: flex;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Action & Log Controls */
+        .controls {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            margin: 2px 0;
+        }
+
+        .btn {
+            background: #222;
+            color: #fff;
+            border: 1px solid #222;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            background: #e0e0e0;
+            color: #a0a0a0;
+            border-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-ron {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        .btn-ron:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+
+        .btn-reach {
+            background: #444;
+            color: #fff;
+            border: 1px solid #111;
+        }
+        .btn-reach:hover:not(:disabled) {
+            background: #111;
+        }
+        .btn-reach.active {
+            background: #d32f2f;
+            border-color: #b71c1c;
+            box-shadow: 0 0 0 2px #ff8a80;
+        }
+
+        /* Game Log Area */
+        .log-box {
+            background: #ffffff;
+            border-radius: 4px;
+            padding: 4px 8px;
+            height: 42px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            width: 100%;
+            border: 1px solid #ccc;
+            color: #555;
+        }
+
+        .log-entry {
+            margin-bottom: 1px;
+        }
+        .log-entry.highlight {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        /* Modal Overlay for Result / Win */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #111;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 380px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        .modal-yaku {
+            font-size: 0.95rem;
+            color: #444;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .modal-cards {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+
+        /* Turn Toast Banner */
+        .toast-banner {
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast-banner.show {
+            opacity: 1;
+        }
+
+        .reach-badge {
+            background: #d32f2f;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: bold;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 4px;
+            display: inline-block;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* --- REACH Simple Strip Cut-in Overlay --- */
+        .reach-cutin-overlay {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            transform: translateY(-50%) scaleY(0);
+            background: rgba(17, 17, 17, 0.92);
+            border-top: 2px solid #d32f2f;
+            border-bottom: 2px solid #d32f2f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 80;
+            pointer-events: none;
+            opacity: 0;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .reach-cutin-overlay.active {
+            transform: translateY(-50%) scaleY(1);
+            opacity: 1;
+        }
+
+        .reach-cutin-text {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reach-cutin-subtext {
+            font-size: 0.85rem;
+            background: #d32f2f;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-board">
+    <!-- Turn Toast -->
+    <div class="toast-banner" id="toast-banner">あなたが先手です！</div>
+
+    <!-- REACH Strip Cut-in -->
+    <div class="reach-cutin-overlay" id="reach-cutin">
+        <div class="reach-cutin-text">
+            <span id="reach-cutin-who">PLAYER</span>
+            <span class="reach-cutin-subtext">REACH!</span>
+        </div>
+    </div>
+
+    <!-- Header: Match Status -->
+    <div class="header-bar">
+        <div class="score-board">
+            <div class="score-item" id="score-p1-label">PLAYER: <span id="player-wins">0</span></div>
+            <div class="score-item" id="score-p2-label">CPU: <span id="score-cpu-wins">0</span></div>
+        </div>
+        <div id="turn-indicator" style="font-size: 0.75rem; color: #555; font-weight: bold;">
+            READY
+        </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="mode-tabs">
+        <button class="tab-btn active" id="tab-play-mode">PvC モード</button>
+        <button class="tab-btn" id="tab-sim-mode">CvC シミュレーション</button>
+    </div>
+
+    <!-- Opponent Hand Area -->
+    <div class="area" id="area-cpu">
+        <div style="font-size: 0.65rem; margin-bottom: 2px; color: #666; display: flex; align-items: center;">
+            CPU <span id="cpu-reach-badge" class="reach-badge" style="display:none;">REACH</span>
+        </div>
+        <div class="hand-container" id="cpu-hand"></div>
+    </div>
+
+    <!-- Center Field Area (Deck & Discards) -->
+    <div class="table-center" id="area-center">
+        <!-- Deck Area -->
+        <div class="deck-area">
+            <div class="deck-stack" id="deck-stack">
+                <div class="card card-back"></div>
+            </div>
+            <div class="deck-count">残: <span id="deck-count">28</span></div>
+        </div>
+
+        <!-- Discard Areas -->
+        <div class="discard-board">
+            <div>
+                <div class="discard-zone-title" id="discard-title-cpu">CPU 捨て札</div>
+                <div class="discard-zone" id="cpu-discards"></div>
+            </div>
+            <div>
+                <div class="discard-zone-title" id="discard-title-player">PLAYER 捨て札</div>
+                <div class="discard-zone" id="player-discards"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CPU vs CPU Simulation Analysis View -->
+    <div class="analysis-panel" id="analysis-panel">
+        <div class="sim-controls">
+            <label style="font-size: 0.75rem; color: #333;">対戦数: </label>
+            <select id="sim-count-select" style="background: #fff; color: #111; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.75rem;">
+                <option value="100">100 試合</option>
+                <option value="1000" selected>1,000 試合</option>
+                <option value="5000">5,000 試合</option>
+            </select>
+            <button class="btn" id="btn-start-sim" style="padding: 3px 8px; font-size: 0.75rem;">開始</button>
+            <button class="btn" id="btn-reset-sim" style="padding: 3px 8px; font-size: 0.75rem; background: #e0e0e0; color: #333; border-color: #ccc;">リセット</button>
+        </div>
+
+        <div class="sim-metrics-grid">
+            <!-- 1. 勝率 -->
+            <div class="metric-card">
+                <div class="metric-title">1. 先手 vs 後手 勝率</div>
+                <div class="metric-val" id="metric-first-second" style="font-size: 0.8rem;">先 0% / 後 0%</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bar-first" style="width: 50%; background: #222;"></div>
+                    <div class="progress-bar-fill" id="bar-second" style="width: 50%; background: #999;"></div>
+                </div>
+            </div>
+
+            <!-- 2. 流局率 -->
+            <div class="metric-card">
+                <div class="metric-title">2. 流局（引き分け）率</div>
+                <div class="metric-val" id="metric-draw-rate">0%</div>
+                <div style="font-size: 0.65rem; color: #666; margin-top: 2px;" id="metric-draw-detail">山札切れ: 0/0</div>
+            </div>
+
+            <!-- 3. あがり種別 -->
+            <div class="metric-card">
+                <div class="metric-title">3. ツモ vs ロン</div>
+                <div class="metric-val" id="metric-tsumo-ron" style="font-size: 0.8rem;">ツ 0% / ロ 0%</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="bar-tsumo" style="width: 50%; background: #222;"></div>
+                    <div class="progress-bar-fill" id="bar-ron" style="width: 50%; background: #999;"></div>
+                </div>
+            </div>
+
+            <!-- 4. 成立役の内訳 -->
+            <div class="metric-card">
+                <div class="metric-title">4. 成立役の内訳</div>
+                <div id="metric-yaku-breakdown" style="font-size: 0.65rem; color: #333; display: flex; flex-direction: column; gap: 2px;">
+                    <div>・Run & Pair: 0%</div>
+                    <div>・ストレート: 0%</div>
+                    <div>・フルハウス: 0%</div>
+                    <div>・フォーカード: 0%</div>
+                </div>
+            </div>
+
+            <!-- 5. 1巡目あがり率 -->
+            <div class="metric-card" style="grid-column: span 2;">
+                <div class="metric-title">5. 1巡目決着率 (初手あがり率)</div>
+                <div class="metric-val" id="metric-first-turn-rate" style="font-size: 0.95rem;">0%</div>
+                <div style="font-size: 0.65rem; color: #666; margin-top: 2px;" id="metric-first-turn-detail">初手あがり: 0/0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Log Window -->
+    <div class="log-box" id="game-log">
+        <div class="log-entry">ゲーム開始</div>
+    </div>
+
+    <!-- Action Controls -->
+    <div class="controls" id="area-controls">
+        <button class="btn btn-tsumo" id="btn-tsumo" disabled>ツモ</button>
+        <button class="btn btn-ron" id="btn-ron" disabled>ロン</button>
+        <button class="btn btn-reach" id="btn-reach" disabled>リーチ</button>
+        <button class="btn" id="btn-discard" disabled>カードを捨てる</button>
+    </div>
+
+    <!-- Player Hand Area -->
+    <div class="area" id="area-player">
+        <div style="font-size: 0.65rem; margin-bottom: 2px; color: #666; display: flex; align- items: center;">
+            YOU <span id="player-reach-badge" class="reach-badge" style="display:none;">REACH</span>
+        </div>
+        <div class="hand-container" id="player-hand"></div>
+    </div>
+</div>
+
+<!-- Game Result Modal -->
+<div class="modal-overlay" id="result-modal">
+    <div class="modal-content">
+        <div class="modal-title" id="modal-winner-text">WIN</div>
+        <div class="modal-yaku" id="modal-yaku-text">役：フルハウス</div>
+        <div class="modal-cards" id="modal-winning-cards"></div>
+        <button class="btn" id="btn-next-round">NEXT ROUND</button>
+    </div>
+</div>
+
+<script>
+    /**
+     * Card Game Engine Logic & UI Interaction
+     */
+
+    // --- Game State Constants & Variables ---
+    const NUM_COPIES = 4;
+    const MAX_NUM = 9;
+
+    let gameMode = 'pvc'; // 'pvc' | 'cvc'
+
+    let deck = [];
+    let playerHand = [];
+    let cpuHand = [];
+    
+    // Discards objects: { val: number, isReachTile: boolean }
+    let playerDiscards = [];
+    let cpuDiscards = [];
+    
+    let isPlayerReach = false;
+    let isCpuReach = false;
+    let playerReachIndex = -1; // リーチ宣言牌のインデックス
+    let cpuReachIndex = -1;
+    let isReachPending = false; // Player pressed Reach button for current discard
+
+    let currentTurn = 'player'; // 'player' | 'cpu'
+    let phase = 'draw'; // 'draw' | 'discard' | 'ended'
+    let lastDiscardedCard = null;
+    let lastDiscarder = null;
+
+    let totalDiscardsCount = 0; // Track 1st turn wins
+
+    let playerWins = 0;
+    let cpuWins = 0;
+    let selectedCardIndex = null;
+
+    // --- Simulation Statistics Data ---
+    let simStats = {
+        totalGames: 0,
+        firstWins: 0,
+        secondWins: 0,
+        draws: 0,
+        tsumoWins: 0,
+        ronWins: 0,
+        firstTurnWins: 0,
+        yakuCounts: {
+            'Run & Pair': 0,
+            'ストレート': 0,
+            'フルハウス': 0,
+            'フォーカード': 0
+        }
+    };
+
+    // --- Structured DOM Namespace Object ---
+    let DOM = {};
+
+    function initDOMReferences() {
+        DOM = {
+            toast: document.getElementById('toast-banner'),
+            cutin: document.getElementById('reach-cutin'),
+            cutinWho: document.getElementById('reach-cutin-who'),
+            turnIndicator: document.getElementById('turn-indicator'),
+            deckCount: document.getElementById('deck-count'),
+            logBox: document.getElementById('game-log'),
+
+            hand: {
+                player: document.getElementById('player-hand'),
+                cpu: document.getElementById('cpu-hand')
+            },
+            discards: {
+                player: document.getElementById('player-discards'),
+                cpu: document.getElementById('cpu-discards'),
+                titlePlayer: document.getElementById('discard-title-player'),
+                titleCpu: document.getElementById('discard-title-cpu')
+            },
+            score: {
+                playerWins: document.getElementById('player-wins'),
+                cpuWins: document.getElementById('score-cpu-wins'),
+                labelP1: document.getElementById('score-p1-label'),
+                labelP2: document.getElementById('score-p2-label')
+            },
+            reachBadge: {
+                player: document.getElementById('player-reach-badge'),
+                cpu: document.getElementById('cpu-reach-badge')
+            },
+            btn: {
+                tsumo: document.getElementById('btn-tsumo'),
+                ron: document.getElementById('btn-ron'),
+                reach: document.getElementById('btn-reach'),
+                discard: document.getElementById('btn-discard'),
+                nextRound: document.getElementById('btn-next-round')
+            },
+            tabs: {
+                playMode: document.getElementById('tab-play-mode'),
+                simMode: document.getElementById('tab-sim-mode')
+            },
+            areas: {
+                cpu: document.getElementById('area-cpu'),
+                player: document.getElementById('area-player'),
+                center: document.getElementById('area-center'),
+                controls: document.getElementById('area-controls')
+            },
+            modal: {
+                root: document.getElementById('result-modal'),
+                winner: document.getElementById('modal-winner-text'),
+                yaku: document.getElementById('modal-yaku-text'),
+                winningCards: document.getElementById('modal-winning-cards')
+            },
+            sim: {
+                panel: document.getElementById('analysis-panel'),
+                btnStart: document.getElementById('btn-start-sim'),
+                btnReset: document.getElementById('btn-reset-sim'),
+                countSelect: document.getElementById('sim-count-select'),
+                metrics: {
+                    firstSecond: document.getElementById('metric-first-second'),
+                    barFirst: document.getElementById('bar-first'),
+                    barSecond: document.getElementById('bar-second'),
+                    drawRate: document.getElementById('metric-draw-rate'),
+                    drawDetail: document.getElementById('metric-draw-detail'),
+                    tsumoRon: document.getElementById('metric-tsumo-ron'),
+                    barTsumo: document.getElementById('bar-tsumo'),
+                    barRon: document.getElementById('bar-ron'),
+                    yakuBreakdown: document.getElementById('metric-yaku-breakdown'),
+                    firstTurnRate: document.getElementById('metric-first-turn-rate'),
+                    firstTurnDetail: document.getElementById('metric-first-turn-detail')
+                }
+            }
+        };
+    }
+
+    function showToast(msg) {
+        DOM.toast.textContent = msg;
+        DOM.toast.classList.add('show');
+        setTimeout(() => {
+            DOM.toast.classList.remove('show');
+        }, 2000);
+    }
+
+    // --- Simple Cut-in Animation Handler ---
+    function triggerReachCutin(whoText, callback) {
+        DOM.cutinWho.textContent = whoText;
+        DOM.cutin.classList.add('active');
+        setTimeout(() => {
+            DOM.cutin.classList.remove('active');
+            if (callback) callback();
+        }, 1200);
+    }
+
+    // --- Deck Creation & Shuffling ---
+    function createDeck() {
+        const newDeck = [];
+        for (let num = 1; num <= MAX_NUM; num++) {
+            for (let c = 0; c < NUM_COPIES; c++) {
+                newDeck.push(num);
+            }
+        }
+        for (let i = newDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
+        }
+        return newDeck;
+    }
+
+    // --- Dynamic Winning Pattern Checker Logic ---
+    function evaluateYaku(cards, isReach = false) {
+        if (cards.length !== 5) return null;
+        
+        const counts = {};
+        cards.forEach(c => counts[c] = (counts[c] || 0) + 1);
+        const valCounts = Object.values(counts);
+
+        // 1. Four of a Kind (フォーカード)
+        if (valCounts.includes(4)) {
+            return { name: 'フォーカード', score: 4 };
+        }
+
+        // 2. Full House (フルハウス)
+        if (valCounts.includes(3) && valCounts.includes(2)) {
+            return { name: 'フルハウス', score: 3 };
+        }
+
+        // 3. Straight (ストレート)
+        const sortedUnique = [...new Set(cards)].sort((a, b) => a - b);
+        if (sortedUnique.length === 5 && sortedUnique[4] - sortedUnique[0] === 4) {
+            return { name: 'ストレート', score: 2 };
+        }
+
+        // 4. Run & Pair (順子 + 対子) - Requires Reach!
+        if (checkRunAndPair(cards)) {
+            if (isReach) {
+                return { name: 'Run & Pair', score: 1 };
+            }
+        }
+
+        return null;
+    }
+
+    // Robust Run & Pair algorithm (Sequence of 3 + Pair of 2)
+    function checkRunAndPair(cards) {
+        if (cards.length !== 5) return false;
+        const sorted = [...cards].sort((a, b) => a - b);
+        
+        for (let i = 0; i < sorted.length - 1; i++) {
+            if (sorted[i] === sorted[i+1]) {
+                const remaining = sorted.filter((_, idx) => idx !== i && idx !== i + 1);
+                if (remaining[0] + 1 === remaining[1] && remaining[1] + 1 === remaining[2]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Check Tenpai (1 tile away from winning)
+    function checkTenpai(hand, isReach = false) {
+        if (hand.length !== 4) return { isTenpai: false, outs: [] };
+        const outs = [];
+        for (let tile = 1; tile <= MAX_NUM; tile++) {
+            const tempHand = [...hand, tile];
+            if (evaluateYaku(tempHand, true)) { 
+                outs.push(tile);
+            }
+        }
+        return { isTenpai: outs.length > 0, outs: outs };
+    }
+
+    // Check specific Tenpai for Run & Pair using exhaustive tile search
+    function checkRunAndPairTenpai(hand) {
+        if (hand.length < 4) return false;
+        const base4 = hand.slice(0, 4);
+        for (let tile = 1; tile <= MAX_NUM; tile++) {
+            if (checkRunAndPair([...base4, tile])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // --- High-Level CPU Evaluation & AI Decision Engine ---
+    function getVisibleCardCounts(knownDiscards, cpuHandCards) {
+        const counts = {};
+        for (let i = 1; i <= MAX_NUM; i++) counts[i] = 0;
+        knownDiscards.forEach(c => counts[c.val !== undefined ? c.val : c] = (counts[c.val !== undefined ? c.val : c] || 0) + 1);
+        cpuHandCards.forEach(c => counts[c] = (counts[c] || 0) + 1);
+        return counts;
+    }
+
+    function evaluateHandOutsAndScore(hand, knownDiscards, isReach) {
+        let bestScore = -1;
+        let totalWinningOuts = 0;
+
+        const visibleCounts = getVisibleCardCounts(knownDiscards, hand);
+
+        for (let tile = 1; tile <= MAX_NUM; tile++) {
+            const testHand = [...hand, tile];
+            const yaku = evaluateYaku(testHand, isReach);
+            if (yaku) {
+                const remainingInDeck = Math.max(0, NUM_COPIES - visibleCounts[tile]);
+                totalWinningOuts += remainingInDeck;
+                const handValue = yaku.score * 1000 + remainingInDeck * 50;
+                if (handValue > bestScore) bestScore = handValue;
+            }
+        }
+
+        if (totalWinningOuts > 0) {
+            return 700 + totalWinningOuts * 30 + (bestScore > 0 ? bestScore / 100 : 0);
+        }
+
+        // Ishanten Evaluation
+        let ishantenAcceptance = 0;
+        for (let drawTile = 1; drawTile <= MAX_NUM; drawTile++) {
+            const temp4Hand = [...hand, drawTile];
+            for (let winTile = 1; winTile <= MAX_NUM; winTile++) {
+                if (evaluateYaku([...temp4Hand, winTile], true)) {
+                    const remainingDraws = Math.max(0, NUM_COPIES - visibleCounts[drawTile]);
+                    ishantenAcceptance += remainingDraws;
+                    break;
+                }
+            }
+        }
+
+        return ishantenAcceptance * 5;
+    }
+
+    function selectCpuDiscardIndex(hand, knownDiscards, isReach) {
+        if (hand.length !== 5) return 0;
+        if (isReach) return 4; // ツモ切り
+
+        let bestIndex = 0;
+        let maxScore = -99999;
+
+        for (let i = 0; i < hand.length; i++) {
+            const candidateHand = hand.filter((_, idx) => idx !== i);
+            const score = evaluateHandOutsAndScore(candidateHand, knownDiscards, isReach);
+            if (score > maxScore) {
+                maxScore = score;
+                bestIndex = i;
+            }
+        }
+        return bestIndex;
+    }
+
+    // --- Game Flow & Round Management ---
+    function startNewGame() {
+        deck = createDeck();
+        playerHand = [];
+        cpuHand = [];
+        playerDiscards = [];
+        cpuDiscards = [];
+        
+        isPlayerReach = false;
+        isCpuReach = false;
+        playerReachIndex = -1;
+        cpuReachIndex = -1;
+        isReachPending = false;
+
+        selectedCardIndex = null;
+        lastDiscardedCard = null;
+        lastDiscarder = null;
+        totalDiscardsCount = 0;
+
+        for (let i = 0; i < 4; i++) {
+            playerHand.push(deck.pop());
+            cpuHand.push(deck.pop());
+        }
+
+        currentTurn = Math.random() < 0.5 ? 'player' : 'cpu';
+        phase = 'draw';
+
+        DOM.reachBadge.player.style.display = 'none';
+        DOM.reachBadge.cpu.style.display = 'none';
+        DOM.btn.reach.classList.remove('active');
+
+        DOM.modal.root.classList.remove('active');
+        showLog("======================");
+        showLog("新しい対局を開始します");
+
+        showToast(currentTurn === 'player' ? "あなたが先手です！" : "CPUが先手です！");
+
+        updateUI();
+
+        if (gameMode === 'pvc' && currentTurn === 'cpu') {
+            setTimeout(executeCpuTurn, 800);
+        } else if (gameMode === 'pvc' && currentTurn === 'player') {
+            checkAutoDraw();
+        }
+    }
+
+    function checkAutoDraw() {
+        if (phase !== 'draw' || currentTurn !== 'player') return;
+
+        const canRon = lastDiscardedCard !== null && 
+                       lastDiscarder === 'cpu' && 
+                       evaluateYaku([...playerHand, lastDiscardedCard], isPlayerReach);
+
+        if (!canRon && deck.length > 0) {
+            setTimeout(() => {
+                if (phase === 'draw' && currentTurn === 'player') {
+                    playerDrawCard();
+                }
+            }, 400);
+        }
+    }
+
+    function playerDrawCard() {
+        if (deck.length === 0) {
+            handleDrawGame();
+            return;
+        }
+
+        const drawn = deck.pop();
+        playerHand.push(drawn);
+        phase = 'discard';
+        showLog(`ツモ: [${drawn}]`);
+
+        const tsumoYaku = evaluateYaku(playerHand, isPlayerReach);
+        if (tsumoYaku) {
+            showLog(`ツモあがり可能！ 役: ${tsumoYaku.name}`);
+        }
+
+        if (isPlayerReach && !tsumoYaku) {
+            selectedCardIndex = 4;
+            setTimeout(() => {
+                playerDiscardCard();
+            }, 500);
+        }
+
+        updateUI();
+    }
+
+    function playerDiscardCard() {
+        if (selectedCardIndex === null || selectedCardIndex >= playerHand.length) return;
+
+        const discarded = playerHand.splice(selectedCardIndex, 1)[0];
+        const isReachTile = isReachPending;
+        
+        playerDiscards.push({ val: discarded, isReachTile: isReachTile });
+        lastDiscardedCard = discarded;
+        lastDiscarder = 'player';
+        selectedCardIndex = null;
+        totalDiscardsCount++;
+
+        if (isReachPending) {
+            isPlayerReach = true;
+            isReachPending = false;
+            playerReachIndex = playerDiscards.length - 1;
+            DOM.reachBadge.player.style.display = 'inline-block';
+            DOM.btn.reach.classList.remove('active');
+            showLog(`YOUがリーチを宣言！ 捨て札: [${discarded}]`, true);
+
+            // Cutin演出後にCPUのターンに移行
+            triggerReachCutin("PLAYER", () => {
+                processAfterPlayerDiscard(discarded);
+            });
+        } else {
+            showLog(`YOU 捨て札: [${discarded}]`);
+            processAfterPlayerDiscard(discarded);
+        }
+    }
+
+    function processAfterPlayerDiscard(discarded) {
+        const cpuRonYaku = evaluateYaku([...cpuHand, discarded], isCpuReach);
+        if (cpuRonYaku) {
+            showLog(`CPUがロンを宣言！ 役: ${cpuRonYaku.name}`);
+            endGame('cpu', cpuRonYaku, [...cpuHand, discarded], 'ロン');
+            return;
+        }
+
+        if (deck.length === 0) {
+            handleDrawGame();
+            return;
+        }
+
+        currentTurn = 'cpu';
+        phase = 'draw';
+        updateUI();
+
+        if (gameMode === 'pvc') {
+            setTimeout(executeCpuTurn, 600);
+        }
+    }
+
+    function executeCpuTurn() {
+        if (phase === 'ended') return;
+
+        const knownDiscards = [...playerDiscards, ...cpuDiscards];
+        
+        // 1. Ron Check
+        if (lastDiscardedCard !== null && lastDiscarder === 'player') {
+            const ronYaku = evaluateYaku([...cpuHand, lastDiscardedCard], isCpuReach);
+            if (ronYaku) {
+                showLog(`CPUがロンを宣言！ 役: ${ronYaku.name}`);
+                endGame('cpu', ronYaku, [...cpuHand, lastDiscardedCard], 'ロン');
+                return;
+            }
+        }
+
+        // 2. Draw
+        if (deck.length === 0) {
+            handleDrawGame();
+            return;
+        }
+        const drawn = deck.pop();
+        cpuHand.push(drawn);
+
+        // 3. Tsumo Check
+        const tsumoYaku = evaluateYaku(cpuHand, isCpuReach);
+        if (tsumoYaku) {
+            showLog(`CPUがツモあがり！ 役: ${tsumoYaku.name}`);
+            endGame('cpu', tsumoYaku, cpuHand, 'ツモ');
+            return;
+        }
+
+        // 4. Reach Check & Discard Decision
+        let cpuWillReachNow = false;
+        if (!isCpuReach) {
+            const tenpaiStatus = checkTenpai(cpuHand, true);
+            if (tenpaiStatus.isTenpai && checkRunAndPairTenpai(cpuHand)) {
+                isCpuReach = true;
+                cpuWillReachNow = true;
+                DOM.reachBadge.cpu.style.display = 'inline-block';
+                showLog("CPUがリーチを宣言！", true);
+            }
+        }
+
+        const discardIndex = selectCpuDiscardIndex(cpuHand, knownDiscards, isCpuReach);
+        const discarded = cpuHand.splice(discardIndex, 1)[0];
+        
+        cpuDiscards.push({ val: discarded, isReachTile: cpuWillReachNow });
+        if (cpuWillReachNow) {
+            cpuReachIndex = cpuDiscards.length - 1;
+        }
+
+        lastDiscardedCard = discarded;
+        lastDiscarder = 'cpu';
+        totalDiscardsCount++;
+
+        if (cpuWillReachNow) {
+            triggerReachCutin("CPU", () => {
+                processAfterCpuDiscard(discarded);
+            });
+        } else {
+            showLog(`CPU 捨て札: [${discarded}]`);
+            processAfterCpuDiscard(discarded);
+        }
+    }
+
+    function processAfterCpuDiscard(discarded) {
+        if (deck.length === 0) {
+            handleDrawGame();
+            return;
+        }
+
+        currentTurn = 'player';
+        phase = 'draw';
+        updateUI();
+
+        if (gameMode === 'pvc') {
+            checkAutoDraw();
+        }
+    }
+
+    function handleDrawGame() {
+        phase = 'ended';
+        showLog("流局（山札切れ・引き分け）");
+        DOM.modal.winner.textContent = "DRAW";
+        DOM.modal.yaku.textContent = "山札がなくなりました";
+        DOM.modal.winningCards.innerHTML = '';
+        DOM.modal.root.classList.add('active');
+        updateUI();
+    }
+
+    function endGame(winner, yaku, winningCards, type) {
+        phase = 'ended';
+        if (winner === 'player') {
+            playerWins++;
+            DOM.score.playerWins.textContent = playerWins;
+            DOM.modal.winner.textContent = `YOU WIN! (${type})`;
+        } else {
+            cpuWins++;
+            DOM.score.cpuWins.textContent = cpuWins;
+            DOM.modal.winner.textContent = `CPU WIN! (${type})`;
+        }
+        
+        DOM.modal.yaku.textContent = `役: ${yaku.name}`;
+        DOM.modal.winningCards.innerHTML = '';
+        
+        [...winningCards].sort((a,b)=>a-b).forEach(num => {
+            const cEl = document.createElement('div');
+            cEl.className = 'card';
+            cEl.innerHTML = `<div class="card-corner">${num}</div><div class="card-center">${num}</div><div class="card-corner" style="text-align:right;">${num}</div>`;
+            DOM.modal.winningCards.appendChild(cEl);
+        });
+
+        DOM.modal.root.classList.add('active');
+        updateUI();
+    }
+
+    // --- Render & UI Updates ---
+    function updateUI() {
+        DOM.deckCount.textContent = deck.length;
+
+        // Render Discards with Reach Tile highlighting
+        renderDiscardZone(DOM.discards.player, playerDiscards, lastDiscarder === 'player');
+        renderDiscardZone(DOM.discards.cpu, cpuDiscards, lastDiscarder === 'cpu');
+
+        // Render Player Hand
+        DOM.hand.player.innerHTML = '';
+        
+        let sortedMainHand = [];
+        let drawnCard = null;
+
+        if (playerHand.length === 5) {
+            sortedMainHand = playerHand.slice(0, 4).map((num, idx) => ({ num, origIdx: idx }));
+            sortedMainHand.sort((a, b) => a.num - b.num);
+            drawnCard = { num: playerHand[4], origIdx: 4 };
+        } else {
+            sortedMainHand = playerHand.map((num, idx) => ({ num, origIdx: idx }));
+            sortedMainHand.sort((a, b) => a.num - b.num);
+        }
+
+        sortedMainHand.forEach(item => {
+            const cardEl = createCardElement(item.num, item.origIdx === selectedCardIndex);
+            cardEl.addEventListener('click', () => handleCardClick(item.origIdx));
+            DOM.hand.player.appendChild(cardEl);
+        });
+
+        if (drawnCard) {
+            const drawnEl = createCardElement(drawnCard.num, drawnCard.origIdx === selectedCardIndex);
+            drawnEl.classList.add('drawn');
+            drawnEl.addEventListener('click', () => handleCardClick(drawnCard.origIdx));
+            DOM.hand.player.appendChild(drawnEl);
+        }
+
+        // Render CPU Hand
+        DOM.hand.cpu.innerHTML = '';
+        cpuHand.forEach((num, idx) => {
+            const cEl = document.createElement('div');
+            cEl.className = 'card card-back';
+            if (idx === 4) cEl.classList.add('drawn');
+            DOM.hand.cpu.appendChild(cEl);
+        });
+
+        // Turn Status & Buttons State
+        if (phase === 'ended') {
+            DOM.turnIndicator.textContent = "GAME OVER";
+            DOM.btn.tsumo.disabled = true;
+            DOM.btn.ron.disabled = true;
+            DOM.btn.reach.disabled = true;
+            DOM.btn.discard.disabled = true;
+            return;
+        }
+
+        DOM.turnIndicator.textContent = currentTurn === 'player' ? 
+            (phase === 'draw' ? "YOUR TURN (DRAW)" : "YOUR TURN (DISCARD)") : "CPU TURN";
+
+        // Tsumo Button
+        const tsumoYaku = playerHand.length === 5 ? evaluateYaku(playerHand, isPlayerReach) : null;
+        DOM.btn.tsumo.disabled = !(currentTurn === 'player' && phase === 'discard' && tsumoYaku);
+
+        // Ron Button
+        const ronYaku = (currentTurn === 'player' && phase === 'draw' && lastDiscardedCard !== null && lastDiscarder === 'cpu') ?
+            evaluateYaku([...playerHand, lastDiscardedCard], isPlayerReach) : null;
+        DOM.btn.ron.disabled = !ronYaku;
+
+        // Reach Button
+        let runAndPairTenpai = false;
+        if (currentTurn === 'player' && phase === 'discard' && !isPlayerReach) {
+            if (selectedCardIndex !== null && playerHand.length === 5) {
+                const temp4Hand = playerHand.filter((_, idx) => idx !== selectedCardIndex);
+                runAndPairTenpai = checkRunAndPairTenpai(temp4Hand);
+            } else if (playerHand.length === 4) {
+                runAndPairTenpai = checkRunAndPairTenpai(playerHand);
+            } else {
+                for (let i = 0; i < playerHand.length; i++) {
+                    const temp4Hand = playerHand.filter((_, idx) => idx !== i);
+                    if (checkRunAndPairTenpai(temp4Hand)) {
+                        runAndPairTenpai = true;
+                        break;
+                    }
+                }
+            }
+        }
+        DOM.btn.reach.disabled = !(currentTurn === 'player' && phase === 'discard' && !isPlayerReach && runAndPairTenpai);
+
+        // Discard Button
+        DOM.btn.discard.disabled = !(currentTurn === 'player' && phase === 'discard' && selectedCardIndex !== null);
+    }
+
+    function createCardElement(num, isSelected) {
+        const c = document.createElement('div');
+        c.className = `card ${isSelected ? 'selected' : ''}`;
+        c.innerHTML = `
+            <div class="card-corner">${num}</div>
+            <div class="card-center">${num}</div>
+            <div class="card-corner" style="text-align:right;">${num}</div>
+        `;
+        return c;
+    }
+
+    function renderDiscardZone(element, discards, isLastDiscarder) {
+        element.innerHTML = '';
+        discards.forEach((item, idx) => {
+            const num = item.val !== undefined ? item.val : item;
+            const isReach = item.isReachTile || false;
+            const c = document.createElement('div');
+            const isLast = isLastDiscarder && idx === discards.length - 1;
+            
+            let classNames = 'card';
+            if (isLast) classNames += ' last-discard';
+            if (isReach) classNames += ' reach-discard';
+            
+            c.className = classNames;
+            c.innerHTML = `
+                <div class="card-corner">${num}</div>
+                <div class="card-center">${num}</div>
+            `;
+            element.appendChild(c);
+        });
+    }
+
+    function handleCardClick(index) {
+        if (currentTurn !== 'player' || phase !== 'discard') return;
+        if (isPlayerReach) return; // Locked when reach
+        selectedCardIndex = selectedCardIndex === index ? null : index;
+        updateUI();
+    }
+
+    function showLog(msg, highlight = false) {
+        const div = document.createElement('div');
+        div.className = `log-entry ${highlight ? 'highlight' : ''}`;
+        div.textContent = msg;
+        DOM.logBox.appendChild(div);
+        DOM.logBox.scrollTop = DOM.logBox.scrollHeight;
+    }
+
+    // --- Bind Event Listeners ---
+    function bindEvents() {
+        DOM.btn.tsumo.addEventListener('click', () => {
+            if (currentTurn !== 'player' || phase !== 'discard') return;
+            const yaku = evaluateYaku(playerHand, isPlayerReach);
+            if (yaku) {
+                showLog(`YOU ツモあがり！ 役: ${yaku.name}`, true);
+                endGame('player', yaku, playerHand, 'ツモ');
+            }
+        });
+
+        DOM.btn.ron.addEventListener('click', () => {
+            if (lastDiscardedCard === null || lastDiscarder !== 'cpu') return;
+            const yaku = evaluateYaku([...playerHand, lastDiscardedCard], isPlayerReach);
+            if (yaku) {
+                showLog(`YOU ロンあがり！ 役: ${yaku.name}`, true);
+                endGame('player', yaku, [...playerHand, lastDiscardedCard], 'ロン');
+            }
+        });
+
+        DOM.btn.reach.addEventListener('click', () => {
+            if (isPlayerReach) return;
+            isReachPending = !isReachPending;
+            if (isReachPending) {
+                DOM.btn.reach.classList.add('active');
+                showToast("リーチ宣言！捨てるカードを選択してください");
+            } else {
+                DOM.btn.reach.classList.remove('active');
+            }
+        });
+
+        DOM.btn.discard.addEventListener('click', playerDiscardCard);
+        DOM.btn.nextRound.addEventListener('click', startNewGame);
+
+        // Mode Tab Switching
+        DOM.tabs.playMode.addEventListener('click', () => {
+            gameMode = 'pvc';
+            DOM.tabs.playMode.classList.add('active');
+            DOM.tabs.simMode.classList.remove('active');
+            DOM.sim.panel.classList.remove('active');
+            
+            DOM.areas.cpu.style.display = 'flex';
+            DOM.areas.center.style.display = 'flex';
+            DOM.areas.player.style.display = 'flex';
+            DOM.areas.controls.style.display = 'flex';
+            
+            DOM.score.labelP1.innerHTML = 'PLAYER: <span id="player-wins">' + playerWins + '</span>';
+            DOM.score.labelP2.innerHTML = 'CPU: <span id="score-cpu-wins">' + cpuWins + '</span>';
+            DOM.discards.titleCpu.textContent = 'CPU 捨て札';
+            DOM.discards.titlePlayer.textContent = 'PLAYER 捨て札';
+
+            // Re-fetch win labels into DOM cache
+            DOM.score.playerWins = document.getElementById('player-wins');
+            DOM.score.cpuWins = document.getElementById('score-cpu-wins');
+
+            startNewGame();
+        });
+
+        DOM.tabs.simMode.addEventListener('click', () => {
+            gameMode = 'cvc';
+            DOM.tabs.simMode.classList.add('active');
+            DOM.tabs.playMode.classList.remove('active');
+            DOM.sim.panel.classList.add('active');
+            
+            DOM.areas.cpu.style.display = 'none';
+            DOM.areas.center.style.display = 'none';
+            DOM.areas.player.style.display = 'none';
+            DOM.areas.controls.style.display = 'none';
+
+            DOM.score.labelP1.innerHTML = 'CPU 1 (先手): <span id="player-wins">0</span>';
+            DOM.score.labelP2.innerHTML = 'CPU 2 (後手): <span id="score-cpu-wins">0</span>';
+            DOM.discards.titleCpu.textContent = 'CPU 2 捨て札';
+            DOM.discards.titlePlayer.textContent = 'CPU 1 捨て札';
+
+            DOM.score.playerWins = document.getElementById('player-wins');
+            DOM.score.cpuWins = document.getElementById('score-cpu-wins');
+
+            updateSimUI();
+        });
+
+        DOM.sim.btnStart.addEventListener('click', () => {
+            const count = parseInt(DOM.sim.countSelect.value, 10);
+            runSimulation(count);
+        });
+
+        DOM.sim.btnReset.addEventListener('click', () => {
+            simStats = {
+                totalGames: 0,
+                firstWins: 0,
+                secondWins: 0,
+                draws: 0,
+                tsumoWins: 0,
+                ronWins: 0,
+                firstTurnWins: 0,
+                yakuCounts: {
+                    'Run & Pair': 0,
+                    'ストレート': 0,
+                    'フルハウス': 0,
+                    'フォーカード': 0
+                }
+            };
+            updateSimUI();
+        });
+    }
+
+    function runSimulation(numMatches) {
+        DOM.sim.btnStart.disabled = true;
+
+        for (let m = 0; m < numMatches; m++) {
+            let simDeck = createDeck();
+            let c1Hand = [simDeck.pop(), simDeck.pop(), simDeck.pop(), simDeck.pop()];
+            let c2Hand = [simDeck.pop(), simDeck.pop(), simDeck.pop(), simDeck.pop()];
+            let c1Discards = [];
+            let c2Discards = [];
+            
+            let c1Reach = false;
+            let c2Reach = false;
+
+            let turn = 'c1';
+            let lastDiscard = null;
+            let lastDiscarderSim = null;
+            let turnsCount = 0;
+
+            while (simDeck.length > 0) {
+                turnsCount++;
+                const isC1 = turn === 'c1';
+                const activeHand = isC1 ? c1Hand : c2Hand;
+                let activeReach = isC1 ? c1Reach : c2Reach;
+                const opponentDiscards = isC1 ? c2Discards : c1Discards;
+                const ownDiscards = isC1 ? c1Discards : c2Discards;
+
+                // 1. Ron Check
+                if (lastDiscard !== null && lastDiscarderSim !== turn) {
+                    const ronYaku = evaluateYaku([...activeHand, lastDiscard], activeReach);
+                    if (ronYaku) {
+                        recordSimWin(isC1 ? 'first' : 'second', 'ron', ronYaku, turnsCount <= 2);
+                        break;
+                    }
+                }
+
+                // 2. Draw
+                if (simDeck.length === 0) {
+                    simStats.draws++;
+                    simStats.totalGames++;
+                    break;
+                }
+                const drawn = simDeck.pop();
+                activeHand.push(drawn);
+
+                // 3. Tsumo Check
+                const tsumoYaku = evaluateYaku(activeHand, activeReach);
+                if (tsumoYaku) {
+                    recordSimWin(isC1 ? 'first' : 'second', 'tsumo', tsumoYaku, turnsCount <= 2);
+                    break;
+                }
+
+                // 4. Reach Check & Discard Decision
+                if (!activeReach) {
+                    if (checkRunAndPairTenpai(activeHand)) {
+                        activeReach = true;
+                        if (isC1) c1Reach = true; else c2Reach = true;
+                    }
+                }
+
+                const knownDiscards = [...opponentDiscards, ...ownDiscards];
+                const discardIndex = selectCpuDiscardIndex(activeHand, knownDiscards, activeReach);
+                const discarded = activeHand.splice(discardIndex, 1)[0];
+                
+                ownDiscards.push({ val: discarded, isReachTile: activeReach });
+                lastDiscard = discarded;
+                lastDiscarderSim = turn;
+
+                turn = isC1 ? 'c2' : 'c1';
+            }
+        }
+
+        DOM.sim.btnStart.disabled = false;
+        updateSimUI();
+    }
+
+    function recordSimWin(winnerType, winType, yaku, isFirstTurn) {
+        simStats.totalGames++;
+        if (winnerType === 'first') simStats.firstWins++;
+        else simStats.secondWins++;
+
+        if (winType === 'tsumo') simStats.tsumoWins++;
+        else simStats.ronWins++;
+
+        if (isFirstTurn) simStats.firstTurnWins++;
+
+        if (yaku && simStats.yakuCounts[yaku.name] !== undefined) {
+            simStats.yakuCounts[yaku.name]++;
+        }
+    }
+
+    function updateSimUI() {
+        const total = simStats.totalGames;
+        const m = DOM.sim.metrics;
+
+        if (total === 0) {
+            m.firstSecond.textContent = "先 0% / 後 0%";
+            m.barFirst.style.width = "50%";
+            m.barSecond.style.width = "50%";
+            m.drawRate.textContent = "0%";
+            m.drawDetail.textContent = "山札切れ: 0/0";
+            m.tsumoRon.textContent = "ツ 0% / ロ 0%";
+            m.barTsumo.style.width = "50%";
+            m.barRon.style.width = "50%";
+            m.firstTurnRate.textContent = "0%";
+            m.firstTurnDetail.textContent = "初手あがり: 0/0";
+            m.yakuBreakdown.innerHTML = `
+                <div>・Run & Pair: 0%</div>
+                <div>・ストレート: 0%</div>
+                <div>・フルハウス: 0%</div>
+                <div>・フォーカード: 0%</div>
+            `;
+            return;
+        }
+
+        const firstPct = ((simStats.firstWins / total) * 100).toFixed(1);
+        const secondPct = ((simStats.secondWins / total) * 100).toFixed(1);
+        const drawPct = ((simStats.draws / total) * 100).toFixed(1);
+        
+        const winTotal = simStats.tsumoWins + simStats.ronWins;
+        const tsumoPct = winTotal > 0 ? ((simStats.tsumoWins / winTotal) * 100).toFixed(1) : "0.0";
+        const ronPct = winTotal > 0 ? ((simStats.ronWins / winTotal) * 100).toFixed(1) : "0.0";
+
+        const firstTurnPct = ((simStats.firstTurnWins / total) * 100).toFixed(1);
+
+        m.firstSecond.textContent = `先 ${firstPct}% / 後 ${secondPct}%`;
+        m.barFirst.style.width = `${firstPct}%`;
+        m.barSecond.style.width = `${secondPct}%`;
+
+        m.drawRate.textContent = `${drawPct}%`;
+        m.drawDetail.textContent = `山札切れ: ${simStats.draws}/${total}`;
+
+        m.tsumoRon.textContent = `ツ ${tsumoPct}% / ロ ${ronPct}%`;
+        m.barTsumo.style.width = `${tsumoPct}%`;
+        m.barRon.style.width = `${ronPct}%`;
+
+        m.firstTurnRate.textContent = `${firstTurnPct}%`;
+        m.firstTurnDetail.textContent = `初手あがり: ${simStats.firstTurnWins}/${total}`;
+
+        const rpPct = winTotal > 0 ? ((simStats.yakuCounts['Run & Pair'] / winTotal) * 100).toFixed(1) : "0.0";
+        const stPct = winTotal > 0 ? ((simStats.yakuCounts['ストレート'] / winTotal) * 100).toFixed(1) : "0.0";
+        const fhPct = winTotal > 0 ? ((simStats.yakuCounts['フルハウス'] / winTotal) * 100).toFixed(1) : "0.0";
+        const fcPct = winTotal > 0 ? ((simStats.yakuCounts['フォーカード'] / winTotal) * 100).toFixed(1) : "0.0";
+
+        m.yakuBreakdown.innerHTML = `
+            <div>・Run & Pair: ${rpPct}%</div>
+            <div>・ストレート: ${stPct}%</div>
+            <div>・フルハウス: ${fhPct}%</div>
+            <div>・フォーカード: ${fcPct}%</div>
+        `;
+    }
+
+    // --- On Window Load ---
+    window.onload = function() {
+        initDOMReferences();
+        bindEvents();
+        startNewGame();
+    };
+</script>
+</body>
+</html>
