@@ -16,7 +16,7 @@
 
 
 ; 勝利数初期化
-[eval exp="f.pwin=2;"]
+[eval exp="f.pwin=4;"]
 [eval exp="f.plose=0;"]
 ;--- [E]For Debug
 
@@ -24,8 +24,9 @@
 @eval exp="f.gamebusy = false"
 #みなみ
 さあ、はじめましょう
+
 *initgame
-;[cm]
+@playbgm storage="butoukai.mp3"
 [iscript]
 disp_menufloating("READY?");
 disp_button();
@@ -35,6 +36,7 @@ disp_button();
 
 ;ゲーム中ロード時
 *gameload
+@stopbgm
 @eval exp="disp_insertcoin('');"
 [cm]
 #
@@ -54,6 +56,8 @@ disp_button();
 
 ; プレイヤー勝利
 *gameplayerwin
+@stopbgm
+@playse storage="victory.mp3"
 [cm]
 #
 [dekamoji]っしゃあ！！[resetfont][p]
@@ -73,15 +77,24 @@ disp_gamemenu(heart);
 tf.target = "*gamepwin" + String(f.pwin);  
 [endscript]
 
+@playbgm storage="serenade.mp3"
 @jump target = &tf.target
 
 ;---
 ; プレイヤー負け
 *gamecpuwin
 ;---
+@stopbgm
+@playse storage="success2.mp3"
+@eval exp="disp_minamiwin();"
 [cm]
-#みなみ
+#みなみ:default
+[if exp="f.pwin < 4"]
 わーい勝ったー[p]
+[else]
+よかった〜[p]
+[endif]
+
 
 [iscript]
 tf.messages = ["ざぁこ、ざぁこ♪","手加減してくれた？…あ、違うの？",
@@ -118,12 +131,16 @@ disp_insertcoin(coin);
 [emb exp="f.plose"]敗か…[r]
 続行だ…！[p]
 [charin]
+[iscript]
+document.getElementById("chara-window").innerHTML = "<div class="particle-bg"></div>";
+[endscript]
 @jump target="*gameend"
 
 ;---
 ; 引き分け
 *gamedraw
 ;---
+@stopbgm
 [cm]
 #みなみ
 引き分けだね[p]
@@ -278,7 +295,9 @@ tf.selected = tf.messages[Math.floor(Math.random() * tf.messages.length)];
 おぅ、あくしろよ！[p]
 
 #みなみ
-[dekamoji]す・[l]き♡[resetfont]
+[dekamoji]す・[l]
+@playse storage="success.mp3"
+き♡[resetfont]
 @wait time=500
 [p]
 
@@ -360,7 +379,7 @@ INSERT したいのは COIN じゃなくってな…[p]
 *gamepwin4_a1
 [cm]
 ジャンプしてみろよ、おらっ！
-;@playse storage=""
+@playse storage="shortjump.mp3"
 @quake count=1 vmax=150 time=800
 @eval exp="f.jumpn++";
 #
@@ -435,9 +454,9 @@ disp_insertcoin(coin);
 #
 [dekamoji]おーーーいっ！[resetfont][p]
 どんだけ【100円玉】突っ込んだと思ってるんだよッ！[p]
+@stopbgm
 
-
-;@playse storage=""
+@playse storage="daipan.mp3"
 @quake count=4 vmax=120 time=800 wait=false
 [dekamoji]バンッ！！！！[resetfont][p]
 @wait time=1500
@@ -445,11 +464,12 @@ disp_insertcoin(coin);
 （思わず拳を振り上げて、殴りつけた）[p]
 
 ;peep peep!
-;playse storage=""
+@playse storage="alert.mp3"
 @eval exp="disp_gamemenu('エラーを検知しました');"
 
 ！？！？[p]
 
+@playse storage="alert.mp3"
 @eval exp="disp_gamemenu('キャラクターとの契約を解除します');"
 
 え？どういうこと？[p]
@@ -457,12 +477,15 @@ disp_insertcoin(coin);
 ;
 ;ゲーム終了
 ;
-@mask
+@playse storage="shupan.mp3"
+@mask time=100
 #
 [cm]
-@laypot layer="1" visible="false"
-@chara_hide name="minami"
-@maskoff
+@layopt layer="1" visible="false"
+@layopt layer="0" visible="false"
+@chara_hide name="minami" time=100
+@bg storage="mnmlastevnt.jpg" time=100
+@mask_off time=500
 
 #みなみ
 あれ？[p]
@@ -486,13 +509,14 @@ disp_insertcoin(coin);
 じゃ…じゃあ、また明日ね！[p]
 
 #みなみ
-だっ…だめぇっ！！[p]
-[dekamoji]見ないでぇ！！[resetfont]
-;@playse storage=""
-;@bg storage="black.jpg" time=5000
+ふえぇ〜[p]
+[dekamoji]見ないでぇ〜！！[resetfont][p]
+@playbgm storage="kimigakesikini2.mp3"
 [cm]
-おしまい[font size=10]（📷スクショもどうぞ）[resetfont][r]
-【戦績】&f.pwin 勝 &f.plose 敗
+おしまい[font size=20]（📷スクショもどうぞ）[resetfont][r]
+【戦績】[emb exp="f.pwin"] 勝 [emb exp="f.plose"] 敗
+@fadeoutbgm
+@wait time=5000
 [glink text="メニューにもどる" target=""]
 [s]
 
@@ -511,6 +535,7 @@ disp_insertcoin(coin);
 
 #
 さあ、続行だ！[p]
+@fadeoutbgm
 震えるがいい…[r]
 …っていうか、皆井出さん寒くない？[p]
 

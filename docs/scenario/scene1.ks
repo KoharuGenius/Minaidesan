@@ -19,8 +19,9 @@
 @layopt layer="1" visible="true"
 
 ;debug
-@jump target="*beforegame"
+;@jump target="*beforegame"
 
+@fadeinbgm storage="supergaya.mp3"
 #
 （ふらっと立ち寄ったお店の一角に古びたゲーム台が置かれていた）[p]
 なんだこりゃ？[p]
@@ -28,14 +29,13 @@
 「コインを入れろ」としか出てこないけど？[p]
 ちょっとやってみるか[p]
 
-;@playse storage=".mp3"
-チャリン。[p]
+[charin]
 
 ;
 ;なまえをいれてください【ああああ】[OK]
 ;
 @eval exp="disp_gamemenu('なまえをいれてください：【ああああ】');"
-[glink color="btn_07_white" text="OK" width=100 target="*enter_game" x=260 y=320 size=20]
+[glink color="btn_07_white" text="OK" width=100 target="*enter_game" x=350 y=320 size=20]
 名前？[r]
 「OK」ボタンしか無いぞ？
 [s]
@@ -45,6 +45,7 @@
 #みなみ
 [dekamoji]よ…ようこそ！ああああ君！[resetfont][p]
 
+@playbgm storage="dougakaisetu.mp3" 
 わたしは【皆井出（みないで）みなみ】です[p]
 趣味は読書で…[p]
 
@@ -52,8 +53,8 @@
 あれ…？[r]
 み、皆井出さん…！？[p]
 
-;#みなみ:boxodrk
-#みなみ
+;#みなみ
+#みなみ:odrk
 あれ？[r]
 ああああ君じゃなくて…[p]
 
@@ -62,14 +63,16 @@
 
 #みなみ
 こっちが聞きたい！[p]
+#みなみ:osms
 ……………[p]
 何、ジロジロ見てるの？[p]
 
 #
 目のやり場に困るんだが…[p]
 
-#みなみ
+#みなみ:odrk
 あっ………！[r]
+#みなみ:haz1
 [dekamoji]み、見ないでッ！[resetfont][p]
 
 ;SE
@@ -83,12 +86,18 @@
 なんで皆井出さんが…[r]
 気になるじゃないか！！[p]
 
-;@playse storage=".mp3"
-チャリン。[p]
+[charin]
 
 @chara_show_minami
+#みなみ:haz1
+だから、見ないで…って[p]
+
+#
+だってゲーミングPCみたいだから、集中しちゃうというか[p]
+
 #みなみ
-[dekamoji]ああああ君、勝負しましょ！[resetfont][p]
+それなら…[p]
+[dekamoji]ああああ君、勝負よっ！[resetfont][p]
 
 #
 【ああああ君】って誰だよっ！[p]
@@ -101,20 +110,21 @@
 ……………[p]
 
 #みなみ
-【台本】にそう書いてあるの[p]
+とにかく勝負…[p]
+【台本】ではそうなってるの[p]
 
 #
 へぇ【台本】…[p]
 
 俺が勝負に勝ったらどうなるの？[p]
 
-#みなみ
-ええっと【台本】には……[p]
+#みなみ:osms
+ええっと【台本】によると……[p]
 
 #みなみ
 ……………！！[p]
 
-#みなみ
+#みなみ:odrk
 嘘でしょ！？[p]
 無理無理無理無理！！[p]
 
@@ -125,8 +135,7 @@
 [dekamoji]おいっ！[resetfont][p]
 余計に気になるじゃないか！！[p]
 
-;@playse storage=".mp3"
-チャリン。[p]
+[charin]
 
 @chara_show_minami
 #みなみ
@@ -139,6 +148,7 @@
 
 ;照れ怒り
 #みなみ
+@playse storage="tukkomi.mp3"
 @quake count=3 time="800" vmax=120 wait=false
 [dekamoji]いいから、買って！[resetfont][p]
 
@@ -154,7 +164,7 @@
 
 *buycloth
 ;NGブザー
-;@playse
+@playse storage="alert.mp3"
 [cm]
 @chara_hide_minami
 @eval exp="disp_gamemenu('鋭意制作中につき<br/>衣装は実装されていません');"
@@ -171,28 +181,36 @@
 ;コイン投入SE
 ;@playse storage=".mp3"
 [dekamoji]うおおおおおおお！！[resetfont][p]
-チャリンチャリンチャリンチャリン[p]
-チャリンチャリンチャリン……[p]
+@playse storage="outnosule.mp3"
+ガチャンガチャン
+@playse storage="outnosule.mp3"
+ガチャンガチャン[p]
+@playse storage="outnosule.mp3"
+ガチャンガチャン
+@playse storage="outnosule.mp3"
+ガチャン……[p]
+@wait time=800
 
 @chara_show_minami
 #
 やあ！[p]
 
 #みなみ
-ひどい…[p]
+ひどいょ…[p]
 
 #
 衣装を買ってもさ[r]
 【台本】どおりなら…[p]
-俺が勝てば、同じことになるんだろ？どうせ[p]
+俺が勝てば、同じことになるんだろ？[p]
 それがこのテのゲームの【お約束】…っ！[p]
 さぁて、ここからどうなるかな？[p]
 
-#みなみ
+#みなみ:haz1
 もうヤダよ…こんなの…[p]
 [dekamoji]見ないで…[resetfont][p]
 
 #
+@playse storage="success.mp3"
 [dekamoji]デュエルしようぜ！[resetfont][p]
 
 ; 勝利数初期化

@@ -20,7 +20,10 @@
 ;for charactor
 [chara_new name="minami" storage="./chara/mnmnormal.png" jname="みなみ"]
 
-;[chara_face name="nozomi" face="eee" storage="./chara/nzmeee.png"]
+[chara_face name="minami" face="odrk" storage="./chara/mnmodrk.png"]
+[chara_face name="minami" face="osms" storage="./chara/mnmosms.png"]
+[chara_face name="minami" face="haz1" storage="./chara/mnmhaz1.png"]
+
 
 ; popopo設定　少しポップで明るい印象（三角波）
 [popopo type="none"]
@@ -62,8 +65,9 @@
 [endmacro]
 
 [macro name="charin"]
-;@playse storage=".mp3"
-チャリン。[p]
+@playse storage="outnosule.mp3"
+ガチャン。[p]
+@wait time=800
 [endmacro]
 
 ;タイトル画面へ移動
@@ -72,24 +76,21 @@
 [s]
 
 *sub_chara_show_minami
-;@eval exp="disp_menufloating('PLAYING...');"
-;@eval exp="$('.noise-container').remove();"
+@playse storage="chime.mp3"
 [iscript]
 disp_menufloating("PLAYING...");
 disp_charawindow();
 disp_gamingrect();
 [endscript]
-;@chara_show name="minami" left=820 top=20 width=400 height=680 time=100
-;@layopt layer="0" visible=true
 @image layer="0" storage="mnmbase.png" left=820 top=20 visible="true"
+@chara_show name="minami" left=820 top=20 width=400 height=680 time=0
+@wait time=500
 [return]
 
 *sub_chara_hide_minami
-@chara_hide name="minami" time=100
+@playse storage="shupan.mp3"
+@eval exp="disp_noise();"
+@chara_hide name="minami" time=0
 @freeimage layer="0"
-[iscript]
-$("#gamingrect").remove();
-disp_noise();
-[endscript]
-@layopt layer="0" visible=true
+@wait time=500
 [return]
