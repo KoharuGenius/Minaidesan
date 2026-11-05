@@ -12,9 +12,12 @@
 @showmenubutton
 
 ;---
-;[eval exp="disp_insertcoin();"]
-[eval exp="disp_gameboard();"]
-[eval exp="disp_noise();"]
+;
+[iscript]
+disp_gameboard();
+disp_insertcoin();
+disp_noise();
+[endscript]
 @layopt layer="0" visible="true"
 @layopt layer="1" visible="true"
 

@@ -10,19 +10,17 @@
 @call storage="tyrano.ks"
 
 ;ゲームで必ず必要な初期化処理はこのファイルに記述するのがオススメ
-;[loadjs storage="mymodule.js"]
-[loadcss file="./data/others/custom.css"]
-[loadjs storage="game.js"]
-[loadcss file="./data/others/game.css"]
+[loadcss file="./data/others/common.css"]
+[loadjs storage="common.js"]
 
 @eval exp="appendCustomlayer();"
 
 ;for charactor
 [chara_new name="minami" storage="./chara/mnmnormal.png" jname="みなみ"]
 
-[chara_face name="minami" face="odrk" storage="./chara/mnmodrk.png"]
-[chara_face name="minami" face="osms" storage="./chara/mnmosms.png"]
-[chara_face name="minami" face="haz1" storage="./chara/mnmhaz1.png"]
+;[chara_face name="minami" face="odrk" storage="./chara/mnmodrk.png"]
+;[chara_face name="minami" face="osms" storage="./chara/mnmosms.png"]
+;[chara_face name="minami" face="haz1" storage="./chara/mnmhaz1.png"]
 
 
 ; popopo設定　少しポップで明るい印象（三角波）
@@ -82,7 +80,8 @@ disp_menufloating("PLAYING...");
 disp_charawindow();
 disp_gamingrect();
 [endscript]
-@image layer="0" storage="mnmbase.png" left=820 top=20 visible="true"
+;@image layer="0" storage="mnmbase.png" left=820 top=20 visible="true"
+@image layer="0" storage="mnmbase.png" left=820 top=20
 @chara_show name="minami" left=820 top=20 width=400 height=680 time=0
 @wait time=500
 [return]

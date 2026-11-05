@@ -9,11 +9,17 @@
 
 @layopt layer="message0" visible="true"
 
-@eval exp="disp_gameboard();"
+[iscript]
+if(f.game == 1){
+    disp_gameboard();
+}else{
+    disp_game2();
+}
+disp_insertcoin();
+[endscript]
 @layopt layer="1" visible="true"
 
 @chara_show_minami
-
 
 ; 勝利数初期化
 [eval exp="f.pwin=4;"]
@@ -29,7 +35,11 @@
 @playbgm storage="butoukai.mp3"
 [iscript]
 disp_menufloating("READY?");
-disp_button();
+if(f.game == 1){
+    disp_button();
+}else{
+    disp_button2();
+}
 [endscript]
 *resumegame
 [s]
@@ -132,7 +142,8 @@ disp_insertcoin(coin);
 続行だ…！[p]
 [charin]
 [iscript]
-document.getElementById("chara-window").innerHTML = "<div class="particle-bg"></div>";
+const strhtml = `<div class="particle-bg"></div>`;
+document.getElementById("chara-window").innerHTML = strhtml;
 [endscript]
 @jump target="*gameend"
 
