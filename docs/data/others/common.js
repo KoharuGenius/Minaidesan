@@ -54,7 +54,7 @@ function disp_noise(){
 function disp_gamingrect(){
   const strhtml=`
   <div id="gamingrect" style="position:absolute; left:870px; top:385px;">
-  <div class="rainbow-box-wrapper">
+  <div class="rainbow-box-wrapper" onClick="alert('Clicked');">
     <div class="rainbow-box"></div>
     <div class="rainbow-box-bokashi"></div>
   </div>
