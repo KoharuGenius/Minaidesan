@@ -29,5 +29,3 @@
 [loadcss file="./data/others/game2.css"]
 [loadjs storage="game2.js"]
 @jump storage="game.ks"
-
-
