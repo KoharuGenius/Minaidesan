@@ -6,15 +6,13 @@
 ;
 
 ;ゲーム中データのロードか？
-[if exp="f.gamebusy = false"]
-@return
-[endif]
-
+[if exp="f.gamebusy"]
 [iscript]
 disp_gamemenu("ゲーム中のデータが<br/>ロードされました");
 [endscript]
-[glink color="btn_07_white" text="OK" width=100 target="*gameload" storage="game.ks" x=260 y=330 size=20]
+[glink color="btn_07_white" text="OK" width=100 target="*gameload" storage="game.ks" x=350 y=330 size=20]
 @eval exp="f.gamebusy = false"
+[endif]
 ;make.ks はロード時にcallとして呼ばれるため、return必須です。
 [return]
 

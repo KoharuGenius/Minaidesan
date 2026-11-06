@@ -47,7 +47,7 @@
 
 ;****Macro Define
 [macro name="choice"]
-[glink color="btn_06_yellow" size="24" width="600" *]
+[glink color="btn_07_white" size="24" width="600" *]
 [endmacro]
 
 [macro name="dekamoji"]
