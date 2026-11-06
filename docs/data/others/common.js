@@ -54,16 +54,30 @@ function disp_noise(){
 function disp_gamingrect(){
   const strhtml=`
   <div id="gamingrect" style="position:absolute; left:870px; top:385px;">
-  <div class="rainbow-box-wrapper" onClick="alert('Clicked');">
+  <div id="rainbow-box-wrapper" class="rainbow-box-wrapper" onClick="onClick_gamingrect();">
     <div class="rainbow-box"></div>
-    <div class="rainbow-box-bokashi"></div>
+    <div id="rainbow-box-bokashi" class="rainbow-box-bokashi"></div>
   </div>
   </div>
   `;
   $("#noise-container").remove();
   $("#gamingrect").remove();
   $("#custumlayer").append(strhtml);
+  if(TYRANO.kag.stat.f.bokashioff){
+    document.getElementById('rainbow-box-bokashi')?.remove();  
+  }
 }
+
+function onClick_gamingrect(){
+  if(TYRANO.kag.stat.f.bokashioff){
+    TYRANO.kag.stat.f.bokashioff=false;
+  }
+  else{
+    TYRANO.kag.stat.f.bokashioff=true;
+  }
+  disp_gamingrect();
+}
+
 
 // キャラクター背景表示
 // レイヤー0    
